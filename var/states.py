@@ -14,3 +14,7 @@ lPressed = 'Pressed'
 lReleased = 'Released'
 lChanged = 'Changed'
 lStates = [sPressed, sReleased, lChanged]
+
+# level states
+lLevelUp = 'LevelUp'
+lLevelDown = 'LevelDown'
