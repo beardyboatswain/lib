@@ -3,7 +3,8 @@
 
 
 from extronlib.system import Wait, Timer
-from extronlib.interface import (EthernetClientInterface, EthernetServerInterface, EthernetServerInterfaceEx,
+from extronlib.interface import (EthernetClientInterface,
+                                 EthernetServerInterfaceEx,
                                  SerialInterface)
 
 from collections import deque
@@ -111,12 +112,17 @@ def GetConnectionHandler(Interface, keepAliveQuery=None,
           - :py:class:`ModuleTcpHandler`
         * - EthernetServerInterfaceEx
           - :py:class:`ServerExHandler`
-          
+
     .. note:: Only TCP EthernetServerInterfaceEx instances are supported.
     """
+
+    """
+    # EthernetServerInterface is no longer supported. For any new development, 
+    # EthernetServerInterfaceEx should be used.
     if isinstance(Interface, EthernetServerInterface):
         raise TypeError('EthernetServerInterface is not a supported interface '
                         'type. Use EthernetServerInterfaceEx instead.')
+    """
 
     if isinstance(Interface, EthernetServerInterfaceEx):
         if Interface.Protocol == 'UDP':

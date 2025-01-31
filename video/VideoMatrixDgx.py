@@ -5,7 +5,7 @@ from typing import Callable
 import re
 import time
 
-from extronlib.interface import EthernetServerInterface
+from extronlib.interface import EthernetServerInterfaceEx
 from extronlib.system import Timer, Wait
 
 import lib.utils.signals as signals
