@@ -17,10 +17,6 @@ ShureP300_dbg = "no"
 RoomOperationMode_dbg = "no"
 ActiveCodec_dbg = "no"
 
-# lib/gui/menu
-CMenu_dbg = "no"
-MEMenu_dbg = "no"
-
 # lib/video
 VideoControl_dbg = "no"
 VideoControlVirtual_dbg = "no"

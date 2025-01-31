@@ -8,8 +8,7 @@ from extronlib.system import MESet
 import lib.utils.signals as signals
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import MEMenu_dbg
-dbg = debugger(MEMenu_dbg, __name__)
+dbg = debugger("no", __name__)
 
 
 class MEPopup:

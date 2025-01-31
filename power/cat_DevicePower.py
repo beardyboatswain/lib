@@ -12,7 +12,7 @@ from extronlib.ui import Button, Knob, Label, Level
 from extronlib.system import Clock, MESet, Timer, Wait
 
 from lib.utils.debugger import debugger
-from usr.var.usr_debug_mode import cat_DevicePower_dbg
+from usr.var.debug_mode import cat_DevicePower_dbg
 dbg = debugger(cat_DevicePower_dbg, __name__)
 
 import lib.utils.signals as signals

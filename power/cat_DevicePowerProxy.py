@@ -11,7 +11,7 @@ from extronlib.system import Clock, MESet, Timer, Wait
 import lib.utils.signals as signals
 
 from lib.utils.debugger import debugger
-from usr.var.usr_debug_mode import cat_DevicePowerProxy_dbg
+from usr.var.debug_mode import cat_DevicePowerProxy_dbg
 dbg = debugger(cat_DevicePowerProxy_dbg, __name__)
 
 LcdProxySamsHG_dbg = "no"

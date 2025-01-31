@@ -13,7 +13,7 @@ from extronlib.ui import Button
 from lib.var.states import sStates, sPressed, sReleased
 
 from lib.utils.debugger import debugger
-from usr.var.usr_debug_mode import lcd_power_dbg
+from usr.var.debug_mode import lcd_power_dbg
 dbg = debugger(lcd_power_dbg, __name__)
 
 

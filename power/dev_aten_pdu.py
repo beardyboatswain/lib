@@ -24,7 +24,7 @@ from usr.dev.dev import (aten_pdu1CP,
                          aten_pdu6CP)
 
 from lib.utils.debugger import debuggerNet as debugger
-from usr.var.usr_debug_mode import dev_aten_pdu_dbg
+from usr.var.debug_mode import dev_aten_pdu_dbg
 dbg = debugger(dev_aten_pdu_dbg, __name__)
 
 
