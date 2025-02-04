@@ -52,7 +52,6 @@ menu_dbg = "no"
 system_init_dbg = "time"
 
 AutoEthernetConnection_dbg = "no"
-VideoControl_dbg = "no"
 VideoControlProxy_dbg = "time"
 
 catVideoControl_dbg = "no"

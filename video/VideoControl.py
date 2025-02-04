@@ -18,8 +18,10 @@ dbg = debugger(VideoControl_dbg, __name__)
 
 
 class VideoOutputType(object):
+    unplugged = 0
     display = 1
     connector = 2
+    audio = 3
 
 
 class VideoInputType(object):
