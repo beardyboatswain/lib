@@ -105,6 +105,10 @@ class ciscoRoomKit(object):
             if ('get' in self.commands.get(cmd).keys()):
                 self.send_cmd(self.commands.get(cmd).get('get'))
 
+    # todo: проверить что эта функция работает - писал не глядя
+    def set(self, cmd: str, value: str) -> None:
+        self.send_cmd(self.commands.get(cmd).get('set')(value))
+
     def rx_parser(self, rx_lines: str):
         for line in rx_lines.split(self.feedback_eos):
             # dbg.print('Parse line [{}]'.format(line))

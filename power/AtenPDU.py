@@ -16,8 +16,7 @@ from lib.var.states import sStates, sPressed, sReleased
 from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 
 from lib.utils.debugger import debuggerNet as debugger
-dev_aten_pdu_dbg = 'no'
-dbg = debugger(dev_aten_pdu_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class AtenPDUTelnet(object):
