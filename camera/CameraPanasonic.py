@@ -25,8 +25,7 @@ from lib.drv.gs.gs_pana_camera_AW_HE_UE_Series_v1_6_1_1 import HTTPClass as Pana
 from lib.camera.CameraControlMeta import CameraControlMeta
 
 import lib.utils.debugger as debugger
-from lib.var.lib_debug_mode import CameraPanasonic_dbg
-dbg = debugger.debuggerNet(CameraPanasonic_dbg, __name__)
+dbg = debugger.debuggerNet('no', __name__)
 
 # UpperCase only
 # pan D2F5 (+52f5) - full right +175  - 121 - 1degree

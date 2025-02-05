@@ -16,8 +16,7 @@ from lib.helpers.AutoSerialConnection import AutoSerialConnection
 from lib.var.states import sStates, sPressed, sReleased
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import ciscoRoomKit_dbg
-dbg = debugger(ciscoRoomKit_dbg, __name__, program_log=True)
+dbg = debugger('no', __name__)
 
 
 class ciscoRoomKit(object):

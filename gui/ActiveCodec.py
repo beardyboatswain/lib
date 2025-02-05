@@ -10,9 +10,9 @@ from extronlib.device import UIDevice
 
 from lib.var.states import sPressed, sReleased, sHeld, sTapped, sRepeated, sStates
 from lib.utils.CallbackObject import CallbackObject
+
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import ActiveCodec_dbg
-dbg = debugger(ActiveCodec_dbg, __name__)
+dbg = debugger('no', __name__)
 
 # если меняется кодек, то сделать перекоммутацию видео и аудио
 

@@ -7,9 +7,7 @@ import lib.utils.signals as signals
 from lib.utils.system_init import InitModule
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import DevicePowerProxy_dbg
-
-dbg = debugger(DevicePowerProxy_dbg, __name__)
+dbg = debugger('no', __name__)
 
 LcdProxySamsHG_dbg = "no"
 LcdProxySamsDM_dbg = "no"

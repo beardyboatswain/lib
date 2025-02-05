@@ -11,8 +11,7 @@ from extronlib.ui import Button
 from lib.var.states import sPressed, sReleased, sTapped, sStates
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import RoomOperationMode_dbg
-dbg = debugger(RoomOperationMode_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class OperationMode(object):

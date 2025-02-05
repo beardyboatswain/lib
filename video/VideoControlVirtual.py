@@ -13,8 +13,7 @@ from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
 from lib.var.states import sStates, sPressed, sReleased
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import VideoControlVirtual_dbg
-dbg = debugger(VideoControlVirtual_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class VideoOutputType(object):

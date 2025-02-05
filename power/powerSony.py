@@ -15,8 +15,7 @@ from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 from lib.var.states import sStates, sPressed, sReleased
 
 from lib.utils.debugger import debugger
-from lib.var.lib_debug_mode import powerSony_dbg
-dbg = debugger(powerSony_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class LCDSonyEthernet(DevicePowerMeta):

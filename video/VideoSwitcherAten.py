@@ -10,8 +10,7 @@ from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 from lib.video.VideoControlProxyMeta import SwitcherControlProxyMeta
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import VideoSwitcherAten_dbg
-dbg = debugger(VideoSwitcherAten_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class SwitcherAtenUC3430(SwitcherControlProxyMeta):

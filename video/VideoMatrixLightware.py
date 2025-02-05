@@ -11,8 +11,7 @@ from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import VideoMatrixLightware_dbg
-dbg = debugger(VideoMatrixLightware_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class MatrixLightware(VideoControlProxyMeta):

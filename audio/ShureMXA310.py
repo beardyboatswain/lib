@@ -11,8 +11,7 @@ from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 from lib.audio.MicrophoneMeta import MicrophoneWithBeamsMeta
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import ShureMXA310_dbg
-dbg = debugger(ShureMXA310_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class ShureMXA310(MicrophoneWithBeamsMeta):

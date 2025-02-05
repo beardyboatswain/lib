@@ -15,8 +15,7 @@ from lib.utils.system_init import InitModule
 from lib.power.DevicePowerMeta import DevicePowerMeta
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import DevicePower_dbg
-dbg = debugger(DevicePower_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class MultiDevicePower(DevicePowerMeta):

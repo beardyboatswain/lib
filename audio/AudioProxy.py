@@ -13,8 +13,7 @@ import lib.utils.signals as signals
 
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import AudioProxy_dbg
-dbg = debugger(AudioProxy_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class AudioProxyBiampTesira():

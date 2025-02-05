@@ -9,8 +9,7 @@ import lib.drv.gs.gs_biam_dsp_TesiraSeries_v1_15_1_0 as biampTesiraServerIO
 from lib.utils.system_init import InitModule
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import AudioProxyBiamp_dbg
-dbg = debugger(AudioProxyBiamp_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class AudioProxyBiampTesira():

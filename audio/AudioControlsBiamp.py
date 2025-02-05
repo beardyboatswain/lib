@@ -13,8 +13,7 @@ from lib.var.states import sPressed, sReleased, sHeld, sTapped, sRepeated, sStat
 from lib.audio.AudioProxyBiamp import AudioProxyBiampTesira
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import AudioControlsBiamp_dbg
-dbg = debugger(AudioControlsBiamp_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class FaderControl():

@@ -13,8 +13,7 @@ from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import VideoMatrixInfobit_dbg
-dbg = debugger(VideoMatrixInfobit_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class MatrixInfobitHxxHAW(VideoControlProxyMeta):

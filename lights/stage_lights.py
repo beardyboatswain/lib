@@ -12,13 +12,12 @@ from extronlib.ui import Button
 from lib.utils.system_init import InitModule
 from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 
-from usr.dev.dev import lightshark, iPadAdm, iPadUsr
+from usr.dev.dev import ipad_adm, ipad_usr
 
 from lib.var.states import sStates, sPressed, sReleased
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import stage_lights_dbg
-dbg = debugger(stage_lights_dbg, __name__)
+dbg = debugger("no", __name__)
 
 
 class LightPowerProxy(object):

@@ -11,8 +11,7 @@ from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 from lib.audio.MicrophoneMeta import MicrophoneWithBeamsMeta
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import SennheiserTCC2_dbg
-dbg = debugger(SennheiserTCC2_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class SennheiserTCC2(MicrophoneWithBeamsMeta):

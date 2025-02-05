@@ -14,8 +14,7 @@ from lib.video.VideoControl import VideoControlProxyMeta
 
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import VideoMatrixXTP_dbg
-dbg = debugger(VideoMatrixXTP_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class MatrixXTP(VideoControlProxyMeta):

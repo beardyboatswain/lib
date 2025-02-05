@@ -13,8 +13,7 @@ from lib.var.states import sStates, sPressed, sReleased
 from lib.gui.SplashScreen import SplashScreen
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import PowerControl_dbg
-dbg = debugger(PowerControl_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class SystemPower(object):

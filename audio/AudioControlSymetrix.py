@@ -20,8 +20,7 @@ from lib.var.states import sPressed, sReleased, sHeld, sTapped, sRepeated, sStat
 from lib.audio.AudioProxySymetrix import AudioProxySymetrix
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import AudioControls_dbg
-dbg = debugger(AudioControls_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class SymetricsConverter(object):

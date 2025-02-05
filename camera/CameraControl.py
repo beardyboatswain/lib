@@ -25,8 +25,7 @@ from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
 from lib.camera.CameraControlMeta import CameraControlMeta
 
 import lib.utils.debugger as debugger
-from lib.var.lib_debug_mode import CameraControl_dbg
-dbg = debugger.debuggerNet(CameraControl_dbg, __name__)
+dbg = debugger.debuggerNet('no', __name__)
 
 
 class CameraControlProcessor():

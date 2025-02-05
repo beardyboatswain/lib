@@ -13,8 +13,7 @@ from extronlib.ui import Button
 from lib.var.states import sStates, sPressed, sReleased
 
 from lib.utils.debugger import debuggerNet as debugger
-from lib.var.lib_debug_mode import powerLGSerial_dbg
-dbg = debugger(powerLGSerial_dbg, __name__)
+dbg = debugger('no', __name__)
 
 
 class LCDLGSerial(object):
