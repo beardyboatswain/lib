@@ -253,6 +253,9 @@ class VideoOutput(object):
 
 
 class VideoControl(object):
+    '''
+    Class for gui control for any video matrix switcher
+    '''
     def __init__(self, UIHost: UIDevice,
                  videoControlProxy: VideoControlProxyMeta):
         self.UIHost = UIHost

@@ -7,7 +7,7 @@ import time
 
 from extronlib.system import Timer, Wait
 from extronlib.device import UIDevice
-from extronlib.ui import Button
+from extronlib.ui import Button, Label
 from extronlib import event
 
 import lib.utils.signals as signals
@@ -34,6 +34,7 @@ class AtenPDUTelnet(object):
         self.power_on_all_btn = list()
         self.power_off_all_btn = list()
         self.power_tgl_btns = dict()
+        self.power_tgl_lbls = dict()
 
         for i_outlet in range(1, self.outlet_size + 1):
             self.power_tgl_btns[i_outlet] = list()
@@ -106,6 +107,10 @@ class AtenPDUTelnet(object):
                 elif (btn.State == 3):
                     btn.SetState(2)
                 self.toggle_outlet_state(outlet)
+
+    def add_tgl_lbl(self, ui_host: UIDevice, label_id: int, outlet: int, label_caption: str = None) -> None:
+        self.power_tgl_lbls[outlet] = Label(ui_host, label_id)
+        self.power_tgl_lbls[outlet].SetText(label_caption if label_caption else "Outlet {}".format(outlet))
 
     def add_tgl_all_btn(self, ui_host: UIDevice, button_id: int):
         self.power_tgl_all_btn.append(Button(ui_host, button_id))
