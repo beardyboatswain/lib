@@ -40,68 +40,6 @@ class VideoInputType(object):
     adv = 26
 
 
-class VideoInputFastTie(object):
-    def __init__(self,
-                 vName: str,
-                 vInNumber: int,
-                 vUIHost: UIDevice,
-                 vBtnBaseID: int,
-                 vType):
-        self.vName = vName
-        self.vInNumber = vInNumber
-        self.vUIHost = vUIHost
-        self.vBtnBaseID = vBtnBaseID
-        self.vType = vType
-
-        self.vIsVirtual = False
-        self.vRealInput = 0
-
-        # Callback function ib btn presset
-        self._callbackFunctions = list()
-
-        self._vBtnMain = Button(self.vUIHost, self.vBtnBaseID)
-        self._vBtnInName = Button(self.vUIHost, self.vBtnBaseID + 1)
-        self._vBtnInName.SetText(self.vName)
-        self._vBtnInputIco = Button(self.vUIHost, self.vBtnBaseID + 2)
-        self._vBtnInputIco.SetState(self.vType)
-
-        self._vActBtns = [self._vBtnMain,
-                          self._vBtnInName,
-                          self._vBtnInputIco]
-
-        @event(self._vActBtns, sStates)
-        def __vActBtnsEventHandler(btn: Button, state: str):
-            if (state == sPressed):
-                self._vBtnMain.SetState(1)
-                self._vBtnInputIco.SetState(self.vType + 1)
-            elif (state == sReleased):
-                self._vBtnMain.SetState(0)
-                self._vBtnInputIco.SetState(self.vType)
-                self.executeCallbackFunctions(self.vInNumber)
-
-    def addCallbackFunction(self, fbCallbackFunction: Callable[[int], None]):
-        if callable(fbCallbackFunction):
-            self._callbackFunctions.append(fbCallbackFunction)
-        else:
-            raise TypeError("Param 'fbCallbackFunction' is not Callable")
-
-    def executeCallbackFunctions(self, nIn: int):
-        for cFunc in self._callbackFunctions:
-            cFunc(nIn)
-
-    def setState(self, state: int):
-        """
-        Set button active/inactive to show real fb
-        """
-        dbg.print("Button {} - Current state {}".format(self._vBtnMain.ID, self._vBtnMain.State))
-        if ((state == 1) and (self._vBtnMain.State == 0)):
-            self._vBtnMain.SetState(2)
-            self._vBtnInName.SetState(2)
-            self._vBtnInputIco.SetState(self.vType + 1)
-        elif ((state == 0) and (self._vBtnMain.State == 2)):
-            self._vBtnMain.SetState(0)
-            self._vBtnInName.SetState(0)
-            self._vBtnInputIco.SetState(self.vType)
 
 
 class VideoInput():
@@ -474,6 +412,70 @@ class VideoControl(object):
             self.inButtons.get(iIn).setState(0)
 
 
+class VideoInputFastTie(object):
+    def __init__(self,
+                 vName: str,
+                 vInNumber: int,
+                 vUIHost: UIDevice,
+                 vBtnBaseID: int,
+                 vType):
+        self.vName = vName
+        self.vInNumber = vInNumber
+        self.vUIHost = vUIHost
+        self.vBtnBaseID = vBtnBaseID
+        self.vType = vType
+
+        self.vIsVirtual = False
+        self.vRealInput = 0
+
+        # Callback function ib btn presset
+        self._callbackFunctions = list()
+
+        self._vBtnMain = Button(self.vUIHost, self.vBtnBaseID)
+        self._vBtnInName = Button(self.vUIHost, self.vBtnBaseID + 1)
+        self._vBtnInName.SetText(self.vName)
+        self._vBtnInputIco = Button(self.vUIHost, self.vBtnBaseID + 2)
+        self._vBtnInputIco.SetState(self.vType)
+
+        self._vActBtns = [self._vBtnMain,
+                          self._vBtnInName,
+                          self._vBtnInputIco]
+
+        @event(self._vActBtns, sStates)
+        def __vActBtnsEventHandler(btn: Button, state: str):
+            if (state == sPressed):
+                self._vBtnMain.SetState(1)
+                self._vBtnInputIco.SetState(self.vType + 1)
+            elif (state == sReleased):
+                self._vBtnMain.SetState(0)
+                self._vBtnInputIco.SetState(self.vType)
+                self.executeCallbackFunctions(self.vInNumber)
+
+    def addCallbackFunction(self, fbCallbackFunction: Callable[[int], None]):
+        if callable(fbCallbackFunction):
+            self._callbackFunctions.append(fbCallbackFunction)
+        else:
+            raise TypeError("Param 'fbCallbackFunction' is not Callable")
+
+    def executeCallbackFunctions(self, nIn: int):
+        for cFunc in self._callbackFunctions:
+            cFunc(nIn)
+
+    def setState(self, state: int):
+        """
+        Set button active/inactive to show real fb
+        """
+        dbg.print("Button {} - Current state {}".format(self._vBtnMain.ID, self._vBtnMain.State))
+        if ((state == 1) and (self._vBtnMain.State == 0)):
+            self._vBtnMain.SetState(2)
+            self._vBtnInName.SetState(2)
+            self._vBtnInputIco.SetState(self.vType + 1)
+        elif ((state == 0) and (self._vBtnMain.State == 2)):
+            self._vBtnMain.SetState(0)
+            self._vBtnInName.SetState(0)
+            self._vBtnInputIco.SetState(self.vType)
+
+
 class VideoOutFastTie(object):
     def __init__(self,
                  UIHost: UIDevice,
@@ -493,6 +495,11 @@ class VideoOutFastTie(object):
         self.output = output
         # self.outputName = outputName
         self.outputName = outputName.replace("\n", " ")
+
+        self._popup_btn = None
+        self._close_btn = None
+        self._popup_name = None
+
 
         self.__lblOutputName = Label(self.UIHost, lblOutputNameID)
         self.__lblOutputName.SetText(self.outputName)
@@ -514,6 +521,36 @@ class VideoOutFastTie(object):
                                           vType=vType)
         videoInputNew.addCallbackFunction(self.__inputCallbackHandler)
         self.inButtons[vInNumber] = videoInputNew
+
+    def addPopupSelector(self, popup_btn_base_id: int, close_btn_id: int, popup_name: str):
+        '''
+        popup_btn_base_id: int - button id for display state and for popup opening,
+            next 2 id will be used
+            popup_btn_base_id+0 - main button id
+            popup_btn_base_id+1 - button id for name of selected input
+            popup_btn_base_id+2 - button id for ico of selected input
+        close_btn_id: int - button for closing popup
+        popup_name: str - name of popup for selector buttons
+        '''
+        self._popup_btn = Button(self.UIHost, popup_btn_base_id)
+        self._close_btn = Button(self.UIHost, close_btn_id)
+        self._popup_name = popup_name
+
+        @event(self._popup_btn, sStates)
+        def _popup_btn_event_handler(btn: Button, state: str):
+            if (state == sPressed):
+                self._popup_btn.SetState(1)
+            elif (state == sReleased):
+                self._popup_btn.SetState(0)
+                self.UIHost.ShowPopup(self._popup_name)
+
+        @event(self._close_btn, sStates)
+        def _close_btn_event_handler(btn: Button, state: str):
+            if (state == sPressed):
+                self._close_btn.SetState(1)
+            elif (state == sReleased):
+                self._close_btn.SetState(0)
+                self.UIHost.HidePopup(self._popup_name)
 
     def addInNames(self, inNames: dict):
         self.inNames = inNames
