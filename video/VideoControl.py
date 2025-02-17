@@ -497,14 +497,17 @@ class VideoOutFastTie(object):
         self.outputName = outputName.replace("\n", " ")
 
         self._popup_btn = None
+        self._popup_btn_name = None
+        self._popup_btn_ico = None
+        
         self._close_btn = None
         self._popup_name = None
 
 
-        self.__lblOutputName = Label(self.UIHost, lblOutputNameID)
-        self.__lblOutputName.SetText(self.outputName)
+        self._lblOutputName = Label(self.UIHost, lblOutputNameID)
+        self._lblOutputName.SetText(self.outputName)
 
-        self.__lblCurrentIn = Label(self.UIHost, lblOutputCurrentInID)
+        self._lblCurrentIn = Label(self.UIHost, lblOutputCurrentInID)
 
         self.inButtons = dict()
         self.inNames = dict()
@@ -522,7 +525,7 @@ class VideoOutFastTie(object):
         videoInputNew.addCallbackFunction(self.__inputCallbackHandler)
         self.inButtons[vInNumber] = videoInputNew
 
-    def addPopupSelector(self, popup_btn_base_id: int, close_btn_id: int, popup_name: str):
+    def addPopupSelector(self, close_btn_id: int, popup_btn_base_id: int, popup_name: str):
         '''
         popup_btn_base_id: int - button id for display state and for popup opening,
             next 2 id will be used
@@ -533,10 +536,13 @@ class VideoOutFastTie(object):
         popup_name: str - name of popup for selector buttons
         '''
         self._popup_btn = Button(self.UIHost, popup_btn_base_id)
+        self._popup_btn_name = Button(self.UIHost, popup_btn_base_id + 1)
+        self._popup_btn_ico = Button(self.UIHost, popup_btn_base_id + 2)
+
         self._close_btn = Button(self.UIHost, close_btn_id)
         self._popup_name = popup_name
 
-        @event(self._popup_btn, sStates)
+        @event([self._popup_btn, self._popup_btn_name, self._popup_btn_ico], sStates)
         def _popup_btn_event_handler(btn: Button, state: str):
             if (state == sPressed):
                 self._popup_btn.SetState(1)
@@ -553,6 +559,13 @@ class VideoOutFastTie(object):
                 self.UIHost.HidePopup(self._popup_name)
 
     def addInNames(self, inNames: dict):
+        '''
+        inNames: dict - dict of input names and types (for icons)
+        inNames = {
+            {1: {'name': "Input 1", 'type': VideoInputType},
+            {2: {'name': "Input 2", 'type': VideoInputType},
+            ...}
+        '''
         self.inNames = inNames
 
     def __inputCallbackHandler(self, nIn):
@@ -570,9 +583,12 @@ class VideoOutFastTie(object):
 
                     else:
                         self.inButtons.get(iBtn).setState(0)
-                self.__lblCurrentIn.SetText(" ")
+                self._lblCurrentIn.SetText(" ")
             else:
-                self.__lblCurrentIn.SetText(self.inNames.get(nIn))
+                self._lblCurrentIn.SetText(self.inNames.get(nIn).get('name'))
+                if self._popup_btn:
+                    self._popup_btn_name.SetText(self.inNames.get(nIn).get('name'))
+                    self._popup_btn_ico.SetState(self.inNames.get(nIn).get('type'))
                 self.hideInputFb()
 
     def hideInputFb(self):
