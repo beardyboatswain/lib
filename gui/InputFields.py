@@ -21,6 +21,8 @@ class NumberInputSpinner(object):
                  max_value: Union[int, float],
                  default_value: Union[int, float] = 0,
                  step: Union[int, float] = 1):
+        
+        self.digits = 1
 
         self.ui_host = ui_host
         self.inc_btn = Button(self.ui_host, inc_btn_id, 1, 0.1)
@@ -81,8 +83,12 @@ class NumberInputSpinner(object):
             self.value = self.min_value
         self.update_label()
 
+    def set_digits_number(self, digits_number: int):
+        self.digits = digits_number
+
     def update_label(self):
-        self.value_lbl.SetText(str(self.value))
+        self.value_lbl.SetText('{:0{width}d}'.format(self.value, width=self.digits))
+
 
     def get_value(self):
         return self.value
@@ -102,15 +108,19 @@ class NumberInputSpinnerWCallback(NumberInputSpinner):
         self._callback_functions = list()
     
     def add_callback(self, callback: Callable):
-        self._callback_Functions.append(callback)
+        self._callback_functions.append(callback)
 
-    def add_callback_function(self, callback_function: Callable[[int | float], None]):
+    def add_callback_function(self, callback_function: Callable[[Union[int, float]], None]):
         if callable(callback_function):
             self._callback_functions.append(callback_function)
         else:
             raise TypeError("Param 'fbCallbackFunction' is not Callable")
 
-    def execute_callback_functions(self, ):
+    def execute_callback_functions(self):
         for cFunc in self._callback_functions:
-            cFunc(nIn)
+            cFunc(self.value)
+
+    def update_label(self):
+        super().update_label()
+        self.execute_callback_functions()
     
