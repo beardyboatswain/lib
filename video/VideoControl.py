@@ -493,8 +493,8 @@ class VideoOutFastTie(object):
         self.videoControl.videoControlProxy.addFbCallbackFunction(self._feedbackHandler)
 
         self.output = output
-        # self.outputName = outputName
-        self.outputName = outputName.replace("\n", " ")
+        self.outputName = outputName
+        # self.outputName = outputName.replace("\n", " ")
 
         self._popup_btn = None
         self._popup_btn_name = None
