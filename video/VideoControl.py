@@ -178,6 +178,89 @@ class VideoInput():
             # self._vBtnInputIco.SetState(self._vBtnInputIco.State - 1)
 
 
+class VideoInputVirtual():
+    def __init__(self,
+                 vName: str,
+                 vInNumber: int,
+                 vUIHost: UIDevice,
+                 vBtnBaseID: int,
+                 vType: int,
+                 vVirtual: bool = False):
+        self.vName = vName
+        self.vInNumber = vInNumber
+        self.vUIHost = vUIHost
+        self.vBtnBaseID = vBtnBaseID
+        self.vType = vType
+        self.vVirtual = vVirtual
+
+        self.vRealInput = 0
+
+        # Callback function if btn presset
+        self._callbackFunctions = list()
+
+        self._vBtnMain = Button(self.vUIHost, self.vBtnBaseID)
+        self._vBtnInName = Button(self.vUIHost, self.vBtnBaseID + 1)
+        self._vBtnInName.SetText(self.vName)
+        self._vBtnInputIco = Button(self.vUIHost, self.vBtnBaseID + 2)
+        self._vBtnInputIco.SetState(self.vType)
+        self._vBtnInputNumber = Button(self.vUIHost, self.vBtnBaseID + 3)
+        if self.vVirtual:
+            self._vBtnInputNumber.SetText("V" + str(self.vInNumber))
+        else:
+            self._vBtnInputNumber.SetText(str(self.vInNumber))
+
+        self.__vActBtns = [self._vBtnMain,
+                           self._vBtnInName,
+                           self._vBtnInputIco,
+                           self._vBtnInputNumber]
+
+        @event(self.__vActBtns, sStates)
+        def __vActBtnsEventHandler(btn: Button, state: str):
+            if (state == sPressed):
+                # self._vBtnMain.SetState(1)
+                # self._vBtnInputIco.SetState(self._vBtnInputIco.State + 1)
+                self.setState(1)
+            elif (state == sReleased):
+                # self._vBtnMain.SetState(0)
+                # self._vBtnInputIco.SetState(self._vBtnInputIco.State - 1)
+                self.setState(0)
+                self.executeCallbackFunctions(self.vInNumber)
+
+    def addCallbackFunction(self, fbCallbackFunction: Callable[[int], None]):
+        if callable(fbCallbackFunction):
+            self._callbackFunctions.append(fbCallbackFunction)
+        else:
+            raise TypeError("Param 'fbCallbackFunction' is not Callable")
+
+    def executeCallbackFunctions(self, nIn: int):
+        for cFunc in self._callbackFunctions:
+            cFunc(nIn)
+
+    def setState(self, state: int):
+        """
+        Set button active/inactive to show real fb
+        """
+        dbg.print("Button {} - Current state {}".format(self._vBtnMain.ID, self._vBtnMain.State))
+        if ((state == 1) and (self._vBtnMain.State == 0)):
+            self._vBtnMain.SetState(2)
+            self._vBtnInName.SetState(2)
+            self._vBtnInputNumber.SetState(2)
+            self._vBtnInputIco.SetState(self.vType + 1)
+            # self._vBtnInputIco.SetState(self._vBtnInputIco.State + 1)
+        elif ((state == 0) and (self._vBtnMain.State == 2)):
+            self._vBtnMain.SetState(0)
+            self._vBtnInName.SetState(0)
+            self._vBtnInputNumber.SetState(0)
+            self._vBtnInputIco.SetState(self.vType)
+            # self._vBtnInputIco.SetState(self._vBtnInputIco.State - 1)
+
+    def setVirtalInput(self, nIn: int, nInName: str):
+        self.vInNumber = nIn
+        self.vName = nInName
+        self._vBtnInputNumber.SetText("V" + str(self.vInNumber))
+        self._vBtnInName.SetText(self.vName)
+
+
 class VideoOutput(object):
     def __init__(self,
                  vName: str,
