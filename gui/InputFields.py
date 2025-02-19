@@ -94,3 +94,23 @@ class NumberInputSpinner(object):
             self.value = self.min_value
         else:
             self.value = new_value
+
+class NumberInputSpinnerWCallback(NumberInputSpinner):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._callback_functions = list()
+    
+    def add_callback(self, callback: Callable):
+        self._callback_Functions.append(callback)
+
+    def add_callback_function(self, callback_function: Callable[[int | float], None]):
+        if callable(callback_function):
+            self._callback_functions.append(callback_function)
+        else:
+            raise TypeError("Param 'fbCallbackFunction' is not Callable")
+
+    def execute_callback_functions(self, ):
+        for cFunc in self._callback_functions:
+            cFunc(nIn)
+    
