@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Callable
+from typing import Callable, List
 from abc import ABCMeta, abstractmethod
 
 import re
@@ -196,7 +196,10 @@ class CameraControlProcessor():
         self.camSwitcher = camSw
         self.camSwitcher.addFbCallbackFunction(self.fbFromSwitcher)
 
-    def addCamSwitcherActiveCamOutput(self, videoOutputs: list) -> None:
+    def addCamSwitcherActiveCamOutput(self, videoOutputs: List[int]) -> None:
+        '''
+        videoOutputs: List[int] - input on camera's matrix for switching
+        '''
         self.activeCamOuts.extend(videoOutputs)
 
     def switchCamera(self, camId: int):
@@ -294,6 +297,8 @@ class CameraControlPanel(object):
     def addPresetButtons(self, presetSavedProbeID: int):
         """
         presetSavedProbeID: int - ID for "Preset Saved" indicator Button
+
+        For preset buttons will be used id's of presets from self.camProcessor
         """
         self.presetSavedBtn = Button(self.uiHost, presetSavedProbeID)
         self.presetSavedBtn.SetVisible(False)
