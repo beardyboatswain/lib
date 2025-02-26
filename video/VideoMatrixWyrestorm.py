@@ -5,9 +5,7 @@ from typing import Callable
 import re
 
 import lib.utils.signals as signals
-
 from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
-
 from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
 
 from lib.utils.debugger import debuggerNet as debugger

@@ -5,11 +5,14 @@ from typing import Callable
 from abc import ABCMeta, abstractmethod
 
 
-class VideoControlProxyMeta(object):
+class MatrixControlProxyMeta(object):
     __metaclass__ = ABCMeta
 
     def __init__(self):
         self.fbCallbackFunctions = list()
+        self.inSize = 0
+        self.outSize = 0
+        self.states = dict()
 
     @abstractmethod
     def setTie(self, nOut: int, nIn: int):
@@ -40,7 +43,12 @@ class VideoControlProxyMeta(object):
         """
         pass
 
-
+VideoControlProxyMeta = MatrixControlProxyMeta
+'''
+VideoControlProxyMeta is the previous name for meta-class for maatrix control
+This alias was made for backward compatibility.
+Use MatrixControlProxyMeta instead of VideoControlProxyMeta in the future.
+'''
 class SwitcherControlProxyMeta(object):
     __metaclass__ = ABCMeta
 

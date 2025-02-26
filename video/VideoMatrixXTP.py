@@ -10,14 +10,14 @@ from extronlib.system import Timer, Wait
 
 from lib.drv.gs.extr_matrix_XTPIICrossPointSeries_v1_12_0_1 import EthernetClass
 from lib.helpers.AutoEthernetConnection import AutoEthernetConnection, AutoServerConnection
-from lib.video.VideoControl import VideoControlProxyMeta
+from lib.video.VideoControlProxyMeta import MatrixControlProxyMeta
 
 
 from lib.utils.debugger import debuggerNet as debugger
 dbg = debugger('no', __name__)
 
 
-class MatrixXTP(VideoControlProxyMeta):
+class MatrixXTP(MatrixControlProxyMeta):
     def __init__(self,
                  device: EthernetClass,
                  inSize: int,

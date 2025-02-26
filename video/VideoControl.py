@@ -8,7 +8,7 @@ from extronlib.device import UIDevice
 from extronlib.ui import Button, Label
 from extronlib.system import MESet
 
-from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
+from lib.video.VideoControlProxyMeta import MatrixControlProxyMeta
 
 from lib.var.states import sStates, sPressed, sReleased
 
@@ -278,7 +278,7 @@ class VideoControl(object):
     Class for gui control for any video matrix switcher
     '''
     def __init__(self, UIHost: UIDevice,
-                 videoControlProxy: VideoControlProxyMeta):
+                 videoControlProxy: MatrixControlProxyMeta):
         self.UIHost = UIHost
 
         self.videoControlProxy = videoControlProxy
