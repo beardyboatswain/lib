@@ -45,13 +45,14 @@ class MatrixTest(MatrixControlProxyMeta):
             cFunc(nOut, nIn)
 
     def refreshTies(self, timer: Timer, count: int):
-        self.requestTie()
+        for nOut in range(1, self.outSize + 1):
+            self.requestTie(nOut)
 
     def requestTie(self, nOut: int = None):
         dbg.print("requestTies")
         @Wait(0.1)
         def request_cmd():
-            self.sendFeedbackForAllOuts()
+            self.executeCallbackFunctions(nOut, self.states.get(nOut))
 
     def setTie(self, nOut: int, nIn: int):
         dbg.print("MatrixTieCommand: out[{}] - in[{}]".format(nOut, nIn))
@@ -77,8 +78,7 @@ class MatrixTest(MatrixControlProxyMeta):
     #             self.executeCallbackFunctions(outN, inN)
 
     def sendFeedbackForAllOuts(self):
-        for iOut in self.states:
+        for iOut in self.states.keys():
             inN = self.states[iOut]
-            outN = iOut
-            if (0 <= inN <= self.inSize) and (0 < outN <= self.outSize):
-                self.executeCallbackFunctions(outN, inN)
+            if (0 <= inN <= self.inSize) and (0 < iOut <= self.outSize):
+                self.executeCallbackFunctions(iOut, inN)
