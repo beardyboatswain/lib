@@ -27,7 +27,11 @@ class AtenPDUTelnet(object):
         self.u_id = self.device.ip + ':' + str(self.device.port)
 
         self.outlet_size = outlet_size
+        
         self.states = dict()
+        for i_outlet in range(1, self.outlet_size + 1):
+            self.states[i_outlet] = 'off'
+
         self.state_all = 'off'
 
         self.power_tgl_all_btn = list()
