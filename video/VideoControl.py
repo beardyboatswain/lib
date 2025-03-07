@@ -13,7 +13,7 @@ from lib.video.VideoControlProxyMeta import MatrixControlProxyMeta
 from lib.var.states import sStates, sPressed, sReleased
 
 from lib.utils.debugger import debuggerNet as debugger
-dbg = debugger('no', __name__)
+dbg = debugger('time', __name__)
 
 
 class VideoOutputType(object):
@@ -38,8 +38,6 @@ class VideoInputType(object):
     blank = 22
     sdi = 24
     adv = 26
-
-
 
 
 class VideoInput():
@@ -101,7 +99,7 @@ class VideoInput():
         """
         Set button active/inactive to show real fb
         """
-        dbg.print("Button {} - Current state {}".format(self._vBtnMain.ID, self._vBtnMain.State))
+        # dbg.print("Button {} - Current state {}".format(self._vBtnMain.ID, self._vBtnMain.State))
         if ((state == 1) and (self._vBtnMain.State == 0)):
             self._vBtnMain.SetState(2)
             self._vBtnInName.SetState(2)
@@ -178,7 +176,7 @@ class VideoInputVirtual():
         """
         Set button active/inactive to show real fb
         """
-        dbg.print("Button {} - Current state {}".format(self._vBtnMain.ID, self._vBtnMain.State))
+        # dbg.print("Button {} - Current state {}".format(self._vBtnMain.ID, self._vBtnMain.State))
         if ((state == 1) and (self._vBtnMain.State == 0)):
             self._vBtnMain.SetState(2)
             self._vBtnInName.SetState(2)
@@ -331,6 +329,7 @@ class VideoControl(object):
                                    vType=vType)
         videoInputNew.addCallbackFunction(self.__inputCallbackHandler)
         self.inButtons[vInNumber] = videoInputNew
+        # dbg.print('Added input {} - {}'.format(vInNumber, self.inButtons[vInNumber]))
 
     def switch(self, nOut: int, nIn: int):
         dbg.print("Switching!!!!!!!!!")
@@ -467,9 +466,7 @@ class VideoControl(object):
 
     def _feedbackHandler(self, nOut: int, nIn: int):
         if (nOut in self.outButtons.keys()):
-            self.outButtons.get(nOut).setFbSource(nIn,
-                                                  self.inButtons.get(nIn).vName,
-                                                  self.inButtons.get(nIn).vType)
+            self.outButtons.get(nOut).setFbSource(nIn, self.inButtons.get(nIn).vName, self.inButtons.get(nIn).vType)
 
         # # switch linked outputs
         # for iCon in self._connectedOuts:
@@ -486,7 +483,6 @@ class VideoControl(object):
         #                 self.switch(iOut, nIn)
 
     def showInputFb(self, currentInput: int):
-        dbg.print(self.inButtons)
         self.inButtons.get(currentInput).setState(1)
 
     def hideInputFb(self):
@@ -548,7 +544,7 @@ class VideoInputFastTie(object):
         """
         Set button active/inactive to show real fb
         """
-        dbg.print("Button {} - Current state {}".format(self._vBtnMain.ID, self._vBtnMain.State))
+        # dbg.print("Button {} - Current state {}".format(self._vBtnMain.ID, self._vBtnMain.State))
         if ((state == 1) and (self._vBtnMain.State == 0)):
             self._vBtnMain.SetState(2)
             self._vBtnInName.SetState(2)
@@ -557,7 +553,6 @@ class VideoInputFastTie(object):
             self._vBtnMain.SetState(0)
             self._vBtnInName.SetState(0)
             self._vBtnInputIco.SetState(self.vType)
-
 
 class VideoOutFastTie(object):
     def __init__(self,
@@ -652,12 +647,10 @@ class VideoOutFastTie(object):
         self.inNames = inNames
 
     def __inputCallbackHandler(self, nIn):
-        dbg.print("Input {} pressed".format(nIn))
         self.hideInputFb()
         self.videoControl.switch(self.output, nIn)
 
     def _feedbackHandler(self, nOut: int, nIn: int):
-        dbg.print("VideoControlFastTie FB: out {} - in {}".format(nOut, nIn))
         if (nOut == self.output):
             if (nIn in self.inButtons.keys()):
                 for iBtn in self.inButtons:
@@ -677,3 +670,135 @@ class VideoOutFastTie(object):
     def hideInputFb(self):
         for iIn in self.inButtons:
             self.inButtons.get(iIn).setState(0)
+
+
+class VideoOutFastTiePopup(object):
+    def __init__(self,
+                 videoControl: VideoControl,
+                 output: int,
+                 outputName: str,
+                 ):
+
+        self.videoControl = videoControl
+        # todo что это за колбэк
+        self.videoControl.videoControlProxy.addFbCallbackFunction(self._feedbackHandler)
+
+        self.output = output
+        self.outputName = outputName
+        # self.outputName = outputName.replace("\n", " ")
+
+        self._popup_btns = list()
+        self._popup_btn_names = list()
+        self._popup_btn_icons = list()
+        
+        self._close_btns = list()
+        self._popups = list()
+
+        self._lblOutputNames = list()
+        self._lblCurrentInNames = list()
+
+        self.inButtons = list()
+        self.inNames = dict()
+
+    def addOutputMechanics(self,
+                           ui: UIDevice,
+                           lblOutputNameID: int,
+                           lblOutputCurrentInID: int):
+        newLabelOutputName = Label(ui, lblOutputNameID)
+        newLabelOutputName.SetText(self.outputName)
+        self._lblOutputNames.append(newLabelOutputName)
+
+        newLabelCurrentInName = Label(ui, lblOutputCurrentInID)
+        newLabelCurrentInName.SetText(" ")
+        self._lblCurrentInNames.append(newLabelCurrentInName)
+
+    def addInputButton(self,
+                       vUi: UIDevice,
+                       vName: str,
+                       vInNumber: int,
+                       vBtnBaseID: int,
+                       vType: int):
+        videoInputNew = VideoInputFastTie(vName=vName,
+                                          vInNumber=vInNumber,
+                                          vUIHost=vUi,
+                                          vBtnBaseID=vBtnBaseID,
+                                          vType=vType)
+        videoInputNew.addCallbackFunction(self.__inputCallbackHandler)
+        self.inButtons.append(videoInputNew)
+
+    def addPopupMecanics(self, ui: UIDevice, popup_name: str, close_btn_id: int, popup_btn_base_id: int):
+        '''
+        ui: UIDevice - ui device
+        popup_name: str - name of popup for selector buttons
+        popup_btn_base_id: int - button id for display state and for popup opening,
+            next 2 id will be used
+            popup_btn_base_id+0 - main button id
+            popup_btn_base_id+1 - button id for name of selected input
+            popup_btn_base_id+2 - button id for ico of selected input
+        close_btn_id: int - button for closing popup
+        popup_name: str - name of popup for selector buttons
+        '''
+        self._popups.append({'ui': ui, 'popup_name': popup_name})
+        self._popup_btns.append(Button(ui, popup_btn_base_id))
+        self._popup_btn_names.append(Button(ui, popup_btn_base_id + 1))
+        self._popup_btn_icons.append(Button(ui, popup_btn_base_id + 2))
+
+        self._close_btns.append(Button(ui, close_btn_id))
+
+        @event(self._popup_btns, sStates)
+        @event(self._popup_btn_names, sStates)
+        @event(self._popup_btn_icons, sStates)
+        def _popup_btn_event_handler(btn: Button, state: str):
+            dbg.print("_popup_btn_event_handler")
+            if (state == sPressed):
+                btn.SetState(1)
+            elif (state == sReleased):
+                btn.SetState(0)
+                self._show_popup()
+
+        @event(self._close_btns, sStates)
+        def _close_btn_event_handler(btn: Button, state: str):
+            if (state == sPressed):
+                btn.SetState(1)
+            elif (state == sReleased):
+                btn.SetState(0)
+                self._hide_popup()
+
+    def _show_popup(self):
+        dbg.print("_show_popup")
+        for i_pp in self._popups:
+            dbg.print("ShowPopup {} - {}".format(i_pp.get('ui'), i_pp.get('popup_name')))
+            i_pp.get('ui').ShowPopup(i_pp.get('popup_name'))
+
+    def _hide_popup(self):
+        for i_pp in self._popups:
+            i_pp.get('ui').HidePopup(i_pp.get('popup_name'))
+
+    def addInNames(self, inNames: dict):
+        '''
+        inNames: dict - dict of input names and types (for icons)
+        inNames = {
+            {1: {'name': "Input 1", 'type': VideoInputType},
+            {2: {'name': "Input 2", 'type': VideoInputType},
+            ...}
+        '''
+        self.inNames = inNames
+
+    def __inputCallbackHandler(self, nIn):
+        dbg.print("Input {} pressed".format(nIn))
+        self.videoControl.switch(self.output, nIn)
+
+    def _feedbackHandler(self, nOut: int, nIn: int):
+        # dbg.print("VideoControlFastTie FB: out {} - in {}".format(nOut, nIn))
+        if (nOut == self.output):
+            for iBtn in self.inButtons:
+                if (iBtn.vInNumber == nIn):
+                    iBtn.setState(1)
+                else:
+                    iBtn.setState(0)
+            for i_lbl in self._lblCurrentInNames:
+                i_lbl.SetText(self.inNames.get(nIn).get('name'))
+            for i_btn in self._popup_btn_names:
+                i_btn.SetText(self.inNames.get(nIn).get('name'))
+            for i_btn in self._popup_btn_icons:
+                i_btn.SetState(self.inNames.get(nIn).get('type'))

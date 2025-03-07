@@ -49,7 +49,7 @@ class MultiDevicePower(DevicePowerMeta):
 
     def set_power(self, nPower: str) -> None:
         for iDev in self.devs:
-            iDev.setPower(nPower)
+            iDev.set_power(nPower)
 
     def tgl_power(self) -> None:
         if self.power == "Off":
