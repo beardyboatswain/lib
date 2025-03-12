@@ -19,7 +19,7 @@ import lib.utils.signals as signals
 from lib.utils.system_init import InitModule
 from lib.var.states import sPressed, sReleased, sHeld, sTapped, sStates
 
-from lib.utils.ipcputils import hexUtils as _h
+from lib.utils.ipcputils import HexUtils as _h
 
 from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
 from lib.camera.CameraControlMeta import CameraControlMeta

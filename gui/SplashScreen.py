@@ -17,22 +17,24 @@ class SplashScreen(object):
         self.btnSpiner = Button(self.uiHost, self.btnSpinerId)
 
         self.splashTimer = None
+        self.splashTimerClose = None
 
     def show(self, sNote: str, sTime: int):
         self.lblNote.SetText(sNote)
         self.btnSpiner.SetState(0)
         self.uiHost.ShowPopup(self.ppPageName, sTime)
         self.splashTimer = Timer(0.7, self.__counterHandler)
-        self.splashTimerClose = Timer(sTime, self.__counterCloseHandler)
+        self.splashTimerClose = Timer(sTime, self._counterCloseHandler)
 
     def hide(self):
-        self.__counterCloseHandler(0, 0)
+        self._counterCloseHandler(0, 0)
 
-    def __counterCloseHandler(self, cntName, cntValue):
+    def _counterCloseHandler(self, cntName, cntValue):
         if (self.splashTimer):
             # if (self.splashTimer.State == '*Running*'):
             self.splashTimer.Stop()
             self.splashTimerClose.Stop()
+            self.uiHost.HidePopup(self.ppPageName)
 
     def __counterHandler(self, cntName, cntValue):
         self.btnSpiner.SetState((self.btnSpiner.State + 1) % 12)

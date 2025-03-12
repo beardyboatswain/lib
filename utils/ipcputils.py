@@ -70,16 +70,22 @@ class IPDev(object):
             raise TypeError("Missing required positional argument: password={}".format(password))
 
 
-class hexUtils:
-    def toHexStr(_t: str) -> str:
+class HexUtils:
+    def line_string_to_hexstring(_t: str) -> str:
         """Return HEX representation of _t"""
         toH = ""
         for i in _t:
             toH += "\\x" + "{:02X}".format(ord(i))
         return toH
-
-    def hexToString(x: int, format: str = "") -> str:
-        if (format == ""):
+    
+    def line_bytes_to_hexstring(s: bytes) -> str:
+        '''
+        s = b'\xaa\x14\x01\x01 6' 
+        '''
+        return ''.join(f'\\x{c:02x}' for c in s) 
+    
+    def hexToString(x: int, frmt: str = "") -> str:
+        if (frmt == ""):
             return "{:X}".format(0xD2F5)
-        elif (format == "0x"):
+        elif (frmt == "0x"):
             return "0x{:X}".format(0xD2F5)

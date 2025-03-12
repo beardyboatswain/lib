@@ -36,7 +36,7 @@ class MultiDevicePower(DevicePowerMeta):
     def _fbHandler(self, nPower: str) -> None:
         cPower = False
         for iDev in self.devs:
-            cPower = cPower or iDev.getPower() == "On"
+            cPower = cPower or iDev.get_power() == "On"
         if cPower:
             self.power = "On"
         else:

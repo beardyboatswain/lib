@@ -13,7 +13,7 @@ from lib.video.VideoControlProxyMeta import MatrixControlProxyMeta
 from lib.var.states import sStates, sPressed, sReleased
 
 from lib.utils.debugger import debuggerNet as debugger
-dbg = debugger('time', __name__)
+dbg = debugger('no', __name__)
 
 
 class VideoOutputType(object):

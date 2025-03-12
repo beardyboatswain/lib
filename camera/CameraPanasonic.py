@@ -18,7 +18,7 @@ from extronlib.ui import Button
 import lib.utils.signals as signals
 from lib.utils.system_init import InitModule
 
-from lib.utils.ipcputils import hexUtils as _h
+from lib.utils.ipcputils import HexUtils as _h
 
 from lib.drv.gs.gs_pana_camera_AW_HE_UE_Series_v1_6_1_1 import HTTPClass as PanaHTTPClass
 

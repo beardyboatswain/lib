@@ -142,7 +142,8 @@ class AutoEthernetConnection(EthernetClientInterface):
     def _AutoConnect(self):
         dbg.print("Connection - Attempting to connect to [{}:{}]".format(self.ip, self.port))
         self.connect()
-        self.autoconnecttimer.Restart()
+        if self.autoconnecttimer:
+            self.autoconnecttimer.Restart()
 
 
 class AutoServerConnection(EthernetServerInterfaceEx):
