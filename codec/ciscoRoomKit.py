@@ -55,7 +55,11 @@ class ciscoRoomKit(object):
                                           'register': 'xFeedback register /Status/Conference/Presentation/Mode'},
                          'PresentationLocalRemote': {'regexp': '\*s Conference Presentation LocalInstance \d{1,2} SendingMode: (LocalOnly|LocalRemote)',
                                                      'register': 'xFeedback register /Status/Conference/Presentation/LocalInstance'},
-                         'PresentationStopped': {'regexp': '\*s Conference Presentation LocalInstance \d{1,2} \(ghost=True\):'}
+                         'PresentationStopped': {'regexp': '\*s Conference Presentation LocalInstance \d{1,2} \(ghost=True\):'},
+                         'StandbyDelay': {'get': 'xConfiguration Standby Delay',
+                                           'set': lambda n_delay: 'xConfiguration Standby Delay: {}'.format(n_delay),
+                                           'register': 'xFeedback register /Status/Standby/Delay',
+                                           'regexp': '\*s Standby Delay: \d{1,3}'}
                          }
 
         self.dev.set_poll_string(self.commands['Standby']['get'] + self.command_eos)

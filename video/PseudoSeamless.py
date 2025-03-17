@@ -130,7 +130,8 @@ class PseudoSeamless(VideoControlProxyMeta):
         self.wiring = wiring
 
     def break_video_matrix_fb(self, n_out: int, n_in: int) -> None:
-        self.bv_states[n_out] = n_in
+        if (n_out in self.bv_outs):
+            self.bv_states[n_out] = n_in
         # dbg.print('BV Matrux state updated: bv_out[{}] < bv_in[{}]'.format(n_out, n_in))
         self.update_states()
 
@@ -170,6 +171,7 @@ class PseudoSeamless(VideoControlProxyMeta):
             dbg.print('in[{}] >> out[{}]'.format(self.sm_states.get(i_out), i_out))
 
     def setTie(self, nOut: int, nIn: int):
+        dbg.print('Set tie on SEAMLESS: in[{}] >> out[{}]'.format(nIn, nOut))
         if self.states.get(nOut) == nIn:
             dbg.print('Tie already set')
         elif nIn in self.bv_states.values():

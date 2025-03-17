@@ -4,6 +4,7 @@
 from typing import Callable
 import re
 import time
+import threading
 
 from extronlib.interface import EthernetServerInterfaceEx
 from extronlib.system import Timer, Wait
@@ -31,6 +32,8 @@ class MatrixXTP(MatrixControlProxyMeta):
         self.inSize = inSize
         self.outSize = outSize
         self.states = dict()
+        for i_out in range(1, self.outSize + 1):
+            self.states[i_out] = 0
         self.fbFunctions = list()
 
         self.device.SubscribeStatus('ConnectionStatus', None, self.ConnectEventHandler)
@@ -40,7 +43,7 @@ class MatrixXTP(MatrixControlProxyMeta):
 
         self.addFbFunction(self.executeCallbackFunctions)
 
-        self.refreshFbTimer = Timer(30, self.refreshTies)
+        self.refreshFbTimer = Timer(60, self.refreshTies)
 
     def addFbFunction(self, fbCallbackFunc: Callable[[int, int], None]):
         if callable(fbCallbackFunc):
@@ -49,6 +52,7 @@ class MatrixXTP(MatrixControlProxyMeta):
             raise TypeError("Param 'callbackFb' is not Callable")
 
     def executeFbFunctions(self, nOut: int, nIn: int):
+        dbg.print('executeFbFunctions. out {} - in {}'.format(nOut, nIn))
         for cFunc in self.fbFunctions:
             cFunc(nOut, nIn)
 
@@ -56,7 +60,7 @@ class MatrixXTP(MatrixControlProxyMeta):
         self.requestTie()
 
     def requestTie(self, nOut: int = None):
-        dbg.print("requestTies")
+        # dbg.print("requestTies")
         if nOut:
             self.device.Send("{}!\x0d\x0a".format(nOut))
         else:
@@ -65,8 +69,14 @@ class MatrixXTP(MatrixControlProxyMeta):
         self.sendFeedbackForAllOuts()
 
     def setTie(self, nOut: int, nIn: int):
-        self.device.Set("MatrixTieCommand", None, {'Input': str(nIn), 'Output': str(nOut), "Tie Type": "Audio/Video"})
-        self.requestTie(nOut=nOut)
+        tie_tread = threading.Thread(target=self.device.Set, args=("MatrixTieCommand", None, {'Input': str(nIn), 'Output': str(nOut), "Tie Type": "Audio/Video"}))
+        tie_tread.start()
+
+        fb_tread = threading.Thread(target=self.requestTie, args=(nOut,))
+        fb_tread.start()
+
+        # self.device.Set("MatrixTieCommand", None, {'Input': str(nIn), 'Output': str(nOut), "Tie Type": "Audio/Video"})
+        # self.requestTie(nOut=nOut)
 
     def getTie(self, nOut: int) -> int:
         return self.states.get(nOut)
@@ -81,14 +91,16 @@ class MatrixXTP(MatrixControlProxyMeta):
 
     def ConnectEventHandler(self, command, value, qualifier):
         dbg.print("Connection Handler: XTP {}".format(value))
+        if value == "Connected":
+            self.refreshTies(None, None)
 
     def fbOutputTieStatusEventHandler(self, command, value, qualifier):
-        dbg.print("Cmd {} - Val {} - Qal {}".format(command, value, qualifier))
+        # dbg.print("Cmd {} - Val {} - Qal {}".format(command, value, qualifier))
         if (command == "OutputTieStatus"):
             inN = int(value)
             outN = int(qualifier['Output'])
             self.states[outN] = inN
-            dbg.print("Matix State: {}".format(self.states))
+            # dbg.print("Matix State: {}".format(self.states))
             if (0 <= inN <= self.inSize) and (0 < outN <= self.outSize):
                 self.executeCallbackFunctions(outN, inN)
 

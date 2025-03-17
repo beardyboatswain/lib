@@ -4,7 +4,8 @@
 from typing import Callable
 from abc import ABCMeta, abstractmethod
 
-
+# todo: move implementation of add_fb_callback_function and execute_callback_functions to DevicePowerMeta
+# todo: lest of callbacks with params to __init__
 class DevicePowerMeta(object):
     __metaclass__ = ABCMeta
 

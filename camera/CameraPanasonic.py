@@ -16,7 +16,6 @@ from extronlib.device import UIDevice
 from extronlib.ui import Button
 
 import lib.utils.signals as signals
-from lib.utils.system_init import InitModule
 
 from lib.utils.ipcputils import HexUtils as _h
 
@@ -306,5 +305,3 @@ def signalCameraHandler(signal, params):
         # dbg.print("SIG<{}> PARA<{}>".format(signal, params))
         cameraPositionHandler(params["Camera"] - camPortOffset, params["RX"])
 """
-
-InitModule(__name__)

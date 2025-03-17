@@ -15,7 +15,7 @@ from lib.gui.InputFields import NumberInputSpinnerWCallback as NumISWC
 from lib.var.states import sPressed, sReleased, sHeld, sTapped, sStates
 
 from lib.utils.debugger import debuggerNet as debugger
-Schedulers_dbg = 'time'
+Schedulers_dbg = 'no'
 dbg = debugger(Schedulers_dbg, __name__)
 
 

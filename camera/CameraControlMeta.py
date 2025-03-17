@@ -45,6 +45,14 @@ class CameraControlMeta(object):
         """
         pass
 
+    @abstractmethod
+    def callInternalPreset(self, presetId: int) -> None:
+        """
+        Call preset
+        presetId: int - preset id
+        """
+        pass
+
     # @abstractmethod
     # def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int, int], None]):
     #     """

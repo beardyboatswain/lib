@@ -57,7 +57,7 @@ class AutoEthernetConnection(EthernetClientInterface):
         super().Disconnect()
 
     def connect(self):
-        self.Connect(1)
+        return self.Connect(1)
 
     def disconnect(self):
         super().Disconnect()
@@ -141,9 +141,15 @@ class AutoEthernetConnection(EthernetClientInterface):
 
     def _AutoConnect(self):
         dbg.print("Connection - Attempting to connect to [{}:{}]".format(self.ip, self.port))
-        self.connect()
-        if self.autoconnecttimer:
-            self.autoconnecttimer.Restart()
+        try:
+            res = self.connect()
+            if res in ['Connected', 'ConnectedAlready']:
+                dbg.print("Connection result - {} to [{}:{}]".format(res, self.ip, self.port))
+            else:
+                if self.autoconnecttimer:
+                    self.autoconnecttimer.Restart()
+        except BaseException as err:
+            dbg.print("Rise exception. Connection [{}:{}] error: {}".format(self.ip, self.port, err))
 
 
 class AutoServerConnection(EthernetServerInterfaceEx):

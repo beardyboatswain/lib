@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Callable, List
+from typing import Callable
 from abc import ABCMeta, abstractmethod
 
 import re
@@ -16,15 +16,17 @@ from extronlib.device import UIDevice
 from extronlib.ui import Button
 
 import lib.utils.signals as signals
+from lib.utils.system_init import InitModule
 from lib.var.states import sPressed, sReleased, sHeld, sTapped, sStates
 
-from lib.utils.ipcputils import HexUtils as _h
+from lib.utils.ipcputils import hexUtils as _h
 
 from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
 from lib.camera.CameraControlMeta import CameraControlMeta
 
 import lib.utils.debugger as debugger
-dbg = debugger.debuggerNet('no', __name__)
+from lib.var.lib_debug_mode import CameraControl_dbg
+dbg = debugger.debuggerNet(CameraControl_dbg, __name__)
 
 
 class CameraControlProcessor():
@@ -40,7 +42,7 @@ class CameraControlProcessor():
         self.presetsFileName = presetFileName
 
         self.cams = dict()
-        self.activeCam: CameraControlMeta = None
+        self.activeCam = None
 
         self.camInputs = dict()
         self.activeCamOuts = list()
@@ -85,8 +87,6 @@ class CameraControlProcessor():
         """
         self.cams[camera.id] = camera
         self.camInputs[camera.id] = videoMatrixIn
-        if (camera.id == 1):
-            self.setActiveCamera(camera.id)
 
     def setActiveCamera(self, camID: int) -> None:
         if (camID in self.cams.keys()):
@@ -106,11 +106,8 @@ class CameraControlProcessor():
             raise TypeError("Param 'fbCallbackFunction' is not Callable")
 
     def execCallbackFbActiveCam(self):
-        if self.activeCam:
-            for cFunc in self.__callbackFbActiveCam:
-                cFunc(self.activeCam)
-        else:
-            dbg.print("Active camera not selected!")
+        for cFunc in self.__callbackFbActiveCam:
+            cFunc(self.activeCam)
 
     def getCamera(self, camId: int) -> CameraControlMeta:
         if self.cams.get(camId):
@@ -186,12 +183,8 @@ class CameraControlProcessor():
         else:
             dbg.print("Error while calling preset: {}. No such preset.".format(presetId))
 
-    def callInternalPreset(self, presetId: int) -> None:
-        self.activeCam.callInternalPreset(presetId)
-        self.switchCamera(self.activeCam.id)
-
     def fbFromSwitcher(self, nOut: int, nIn: int) -> None:
-        # dbg.print("CAMERA - Out <{}> - In <{}>".format(nOut, nIn))
+        dbg.print("CAMERA - Out <{}> - In <{}>".format(nOut, nIn))
         if (self.autoCamOnAirFl and (nOut in self.activeCamOuts)):
             self.activeCam = self.getCameraBySwitchInput(nIn)
             self.execCallbackFbActiveCam()
@@ -200,10 +193,7 @@ class CameraControlProcessor():
         self.camSwitcher = camSw
         self.camSwitcher.addFbCallbackFunction(self.fbFromSwitcher)
 
-    def addCamSwitcherActiveCamOutput(self, videoOutputs: List[int]) -> None:
-        '''
-        videoOutputs: List[int] - input on camera's matrix for switching
-        '''
+    def addCamSwitcherActiveCamOutput(self, videoOutputs: list) -> None:
         self.activeCamOuts.extend(videoOutputs)
 
     def switchCamera(self, camId: int):
@@ -301,8 +291,6 @@ class CameraControlPanel(object):
     def addPresetButtons(self, presetSavedProbeID: int):
         """
         presetSavedProbeID: int - ID for "Preset Saved" indicator Button
-
-        For preset buttons will be used id's of presets from self.camProcessor
         """
         self.presetSavedBtn = Button(self.uiHost, presetSavedProbeID)
         self.presetSavedBtn.SetVisible(False)
@@ -339,3 +327,6 @@ class CameraControlPanel(object):
                     @Wait(2)
                     def savedButtonBlink():
                         self.presetSavedBtn.SetVisible(False)
+
+
+InitModule(__name__)

@@ -14,7 +14,7 @@ from lib.power.DevicePowerMeta import DevicePowerMeta
 from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 from lib.var.states import sStates, sPressed, sReleased
 
-from lib.utils.ipcputils import HexUtils
+from lib.utils.ipcputils import HexUtils as Hex
 
 from lib.utils.debugger import debuggerNet as debugger
 dbg = debugger('no', __name__)
@@ -76,7 +76,7 @@ class LCDSonyEthernet(DevicePowerMeta):
             cFunc(self.power)
 
     def connectEventHandler(self, interface, state):
-        dbg.print("Bravia {} in {}!".format(self.dev.ip, state))
+        dbg.print("Bravia {} is {}!".format(self.dev.ip, state))
 
     def pollDevice(self, timer, counter):
         # self.dev.send("POWER REQUEST")
@@ -85,10 +85,10 @@ class LCDSonyEthernet(DevicePowerMeta):
     def set_power(self, power: str):
         if (power == "On"):
             self.dev.send("*SCPOWR0000000000000001\x0a")
-            dbg.print("Brabia Power ON sent")
+            # dbg.print("Brabia Power ON sent")
         elif (power == "Off"):
             self.dev.send("*SCPOWR0000000000000000\x0a")
-            dbg.print("Bravia Power OFF sent")
+            # dbg.print("Bravia Power OFF sent")
 
     def showFb(self):
         self.execute_callback_functions()
@@ -96,7 +96,7 @@ class LCDSonyEthernet(DevicePowerMeta):
             iBtn.SetState(2 if self.power == "On" else 0)
 
     def rxParser(self, rxLine: str):
-        dbg.print("RX lines:\n{}".format(rxLine))
+        # dbg.print("RX lines:\n{}".format(rxLine))
         dataLines = rxLine
 
         for rxLine in dataLines.splitlines():
@@ -108,7 +108,7 @@ class LCDSonyEthernet(DevicePowerMeta):
                 self.showFb()
 
     def rxEventHandler(self, interface, data):
-        dbg.print("Sony {} recieved: {} ".format(self.dev.ip, data.decode()))
+        # dbg.print("Sony {} recieved: {} ".format(self.dev.ip, data.decode()))
         self.rxBuf = data.decode()
         self.rxParser(data.decode())
 
@@ -116,6 +116,7 @@ class LCDSonyEthernet(DevicePowerMeta):
 class LCDSonySerialOverEthernet(DevicePowerMeta):
     def __init__(self, dev: AutoEthernetConnection):
         self.dev = dev
+        self.uid = f'{self.dev.ip}:{self.dev.port}'
 
         self.tglPowerBtns = list()
 
@@ -130,8 +131,8 @@ class LCDSonySerialOverEthernet(DevicePowerMeta):
 
         self.dev.connect()
 
-        self.pollTimer = Timer(15, self.pollDevice)
-        dbg.print("Bravia created!")
+        # self.pollTimer = Timer(30, self.pollDevice)
+        dbg.print("Bravia created - {}".format(self.uid))
 
     def setMechanics(self, uiHost: UIDevice, btnTglPowerId: int):
         self.tglPowerBtns.append(Button(uiHost, btnTglPowerId))
@@ -149,7 +150,7 @@ class LCDSonySerialOverEthernet(DevicePowerMeta):
                 elif (btn.State == 3):
                     btn.SetState(2)
                 self.tgl_power()
-                dbg.print("Bravia power toggled")
+                dbg.print("Bravia {} power toggled".format(self.uid))
 
     def get_power(self) -> str:
         return self.power
@@ -171,29 +172,32 @@ class LCDSonySerialOverEthernet(DevicePowerMeta):
             cFunc(self.power)
 
     def connectEventHandler(self, interface, state):
-        dbg.print("Bravia {} in {}!".format(self.dev.ip, state))
+        dbg.print("Bravia {} - port {}!".format(self.uid, state))
+        if self.dev.ConnectedFlag:
+            self.pollDevice(0, 0)
 
     def pollDevice(self, timer, counter):
-        dbg.print("POWER REQUEST")
+        dbg.print("Bravia {} - pollDevice. Connected {}".format(self.uid, self.dev.ConnectedFlag))
         self.dev.send(b"\x83\x00\x00\xff\xff\x81")
 
         # [70][00][02][01][73] - power is on
         # [70][00][02][00][72] - power is off
 
-
     def set_power(self, power: str):
-        if (power == "On"):
-            self.dev.send(b"\x8c\x00\x00\x02\x01\x8f")
-            dbg.print("Brabia Power ON sent")
-            self.power = "On"
-            self.showFb()
-        elif (power == "Off"):
-            self.dev.send(b"\x8c\x00\x00\x02\x00\x8e")
-            dbg.print("Bravia Power OFF sent")
-            self.power = "Off"
-            self.showFb()
-        self.pollDevice(0, 0)
+        cmd = b''
+        self.power = power
 
+        if (self.power == "On"):
+            cmd = b"\x8c\x00\x00\x02\x01\x8f"
+        elif (self.power == "Off"):
+            cmd = b"\x8c\x00\x00\x02\x00\x8e"
+        
+        self.dev.send(cmd)
+        dbg.print("Bravia {} - power {} sent: {}".format(self.uid, self.power, Hex.line_bytes_to_hexstring(cmd)))
+        self.showFb()
+        @Wait(3)
+        def poll_dev_wait_event():
+            self.pollDevice(0, 0)
 
     def showFb(self):
         self.execute_callback_functions()
@@ -201,19 +205,20 @@ class LCDSonySerialOverEthernet(DevicePowerMeta):
             iBtn.SetState(2 if self.power == "On" else 0)
 
     def rxParser(self, rxLine: str):
-        dbg.print("RX lines:\n{}".format(HexUtils.line_bytes_to_hexstring(rxLine)))
+        dbg.print("Bravia {} - RX lines:\n{}".format(self.uid, Hex.line_bytes_to_hexstring(rxLine)))
         dataLines = rxLine
         # no real fb for now
         for rxLine in dataLines.splitlines():
             if (rxLine.find(b"\x02\x01") > -1):
+                dbg.print("Bravia POn find")
                 self.power = "On"
                 self.showFb()
             elif (rxLine.find(b"\x02\x00") > -1):
+                dbg.print("Bravia POff find")
                 self.power = "Off"
                 self.showFb()
 
-
     def rxEventHandler(self, interface, data:bytes):
-        # dbg.print("Sony {} recieved: {} ".format(self.dev.ip, HexUtils.line_bytes_to_hexstring(data)))
+        dbg.print("Sony {} recieved: {} ".format(self.uid, Hex.line_bytes_to_hexstring(data)))
         # self.rxBuf = data.decode()
         self.rxParser(data.decode())
