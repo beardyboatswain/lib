@@ -23,8 +23,8 @@ from lib.drv.gs.gs_pana_camera_AW_HE_UE_Series_v1_6_1_1 import HTTPClass as Pana
 
 from lib.camera.CameraControlMeta import CameraControlMeta
 
-import lib.utils.debugger as debugger
-dbg = debugger.debuggerNet('no', __name__)
+from lib.utils.debugger import debuggerNet as debugger
+dbg = debugger('no', __name__)
 
 # UpperCase only
 # pan D2F5 (+52f5) - full right +175  - 121 - 1degree
@@ -78,10 +78,16 @@ class CameraControlPanasonic(CameraControlMeta):
         self.pollInterval = 10
         self.cameraPollTimer = Timer(self.pollInterval, self.pollCamera)
 
+        self.dbg = debugger('time', 'CameraControlPanasonic')
+
     def send(self, cmd: str) -> None:
         try:
             urlS = "http://{}:{}/cgi-bin/aw_ptz?{}".format(self.ip, self.port, cmd)
-
+            '''
+            http://10.213.142.43:80/cgi-bin/aw_ptz?%23APS795D7AC8252&res=1
+            http://10.213.142.43:80/cgi-bin/aw_ptz?%23APC&res=1
+            http://10.213.142.43:80/cgi-bin/aw_ptz?%23APSD20061231A2&res=1 
+            '''
             headers = {}
             headers['Authorization'] = b'Basic ' + base64.b64encode(self.username.encode() + b':' + self.password.encode())
 
@@ -187,7 +193,7 @@ class CameraControlPanasonic(CameraControlMeta):
     def getPTZ(self) -> dict:
         return {"p": self.pan, "t": self.tilt, "z": self.zoom}
 
-    def setPTZ(self, ptz: dict) -> None:
+    def setPTZ(self, ptz: tuple) -> None:
         """
         Move camera to PTZ position
         ptz: dict - {"p":<pan_position>, "t":<tilt_position>, "z":<zoom_position>}
@@ -196,15 +202,17 @@ class CameraControlPanasonic(CameraControlMeta):
         cTilt = ptz.get("t")
         cZoom = ptz.get("z")
 
+        self.dbg.print("Camera {} - SetPTZ: {} ({}, {}, {})".format(self.ip, ptz, cPan, cTilt, cZoom))
+
         if (cPan and cTilt and cZoom):
             # скорость для пресетов от 0x0 до 0x31 (1 - 49)
             cSpeed = 0x1D
 
-            dbg.print("cmd=%23AXZ{:03X}&res=1".format(cZoom))
+            self.dbg.print("cmd=%23AXZ{:03X}&res=1".format(cZoom))
             self.send("cmd=%23AXZ{:03X}&res=1".format(cZoom))
 
             if (self.model.find("40") > 0) or (self.model.find("42") > 0) or (self.model.find("50") > 0):
-                dbg.print("CMD: cmd=%23APS{:04X}{:04X}{:02X}2&res=1".format(cPan, cTilt, cSpeed))
+                self.dbg.print("CMD: cmd=%23APS{:04X}{:04X}{:02X}2&res=1".format(cPan, cTilt, cSpeed))
                 self.send("cmd=%23APS{:04X}{:04X}{:02X}2&res=1".format(cPan, cTilt, cSpeed))
             elif (self.model.find("20") > 0):
                 self.send("cmd=%23APC{}{}&res=1".format(cPan, cTilt))
@@ -212,6 +220,20 @@ class CameraControlPanasonic(CameraControlMeta):
             @Wait(2)
             def RequestNewPosition():
                 self.pollCamera("Poll", 1)
+
+    def setPTZangles(self, ptz: dict) -> None:
+        '''
+        Set PTZ angles in degrees
+        '''
+        zoomMax = 20000
+        zoomOffset = 800 # default offset 800, было 350
+
+        cZoom = 0x555 + int((ptz["z"] + zoomOffset) * ((0xFFF - 0x555) / zoomMax))
+        cPan = int(0x8000 + ((0xD2F5 - 0x8000) / 175) * ptz["p"])
+        cTilt = int(0x8000 + ((0x8000 - 0x5555) / 90) * ptz["t"])
+        dbg.print("PANA - STREIGT PTZ: {}".format(ptz))
+        dbg.print("PANA - STREIGT C PTZ: p<{}>  t<{}>  z<{}>".format(cPan, cTilt, cZoom))
+        self.setPTZ({"p": cPan, "t": cTilt, "z": cZoom})
 
 
 """

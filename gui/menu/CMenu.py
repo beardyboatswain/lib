@@ -39,7 +39,7 @@ class CMenu:
                       homeP: bool = False):
 
         if submenuName:
-            btn = Button(self.UIDev, btnID, holdTime=0.7)
+            btn = Button(self.UIDev, btnID, holdTime=0.5)
         else:
             btn = Button(self.UIDev, btnID)
 

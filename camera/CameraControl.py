@@ -24,7 +24,7 @@ from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
 from lib.camera.CameraControlMeta import CameraControlMeta
 
 import lib.utils.debugger as debugger
-dbg = debugger.debuggerNet('no', __name__)
+dbg = debugger.debuggerNet('time', __name__)
 
 
 class CameraControlProcessor():
@@ -89,11 +89,16 @@ class CameraControlProcessor():
             self.setActiveCamera(camera.id)
 
     def setActiveCamera(self, camID: int) -> None:
+        dbg.print("setActiveCamera: {}".format(camID))
+        dbg.print("Cams: {}".format(self.cams))
+        
         if (camID in self.cams.keys()):
             self.activeCam = self.cams.get(camID)
+            dbg.print("ActiveCam: {}".format(self.activeCam))
             self.execCallbackFbActiveCam()
             if self.autoCamOnAirFl:
                 self.switchCamera(self.activeCam.id)
+                # dbg.print("Active camera switched to {}".format(self.activeCam.id))
             return self.activeCam
         else:
             dbg.print("Wrong camID ({}). No such camera in CameraControlProcessor.".format(camID))
@@ -208,12 +213,18 @@ class CameraControlProcessor():
 
     def switchCamera(self, camId: int):
         camIn = self.camInputs.get(int(camId))
-        dbg.print("Trying to switch camera <{}>, input <{}>".format(camId, camIn))
         if (camIn > 0):
             for iOut in self.activeCamOuts:
                 dbg.print("Trying to switch camera <{}>, input <{}> -> output <{}>".format(camId, camIn, iOut))
                 self.camSwitcher.setTie(nOut=iOut, nIn=camIn)
 
+    def callPTZ(self, cam_id: int, ptz: dict) -> None:
+        '''
+        cam_id: int - camera number
+        ptz: dict - camera coords {'p':<pan>, 't':<tilt>, 'z':<zoom>)
+        '''
+        self.setActiveCamera(cam_id)
+        self.activeCam.setPTZangles(ptz)
 
 class CameraControlPanel(object):
     def __init__(self, uiHost: UIDevice, camProcessor: CameraControlProcessor):

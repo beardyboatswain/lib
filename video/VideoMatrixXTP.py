@@ -69,7 +69,8 @@ class MatrixXTP(MatrixControlProxyMeta):
         self.sendFeedbackForAllOuts()
 
     def setTie(self, nOut: int, nIn: int):
-        tie_tread = threading.Thread(target=self.device.Set, args=("MatrixTieCommand", None, {'Input': str(nIn), 'Output': str(nOut), "Tie Type": "Audio/Video"}))
+        tie_tread = threading.Thread(target=self.device.Set, 
+                                     args=("MatrixTieCommand", None, {'Input': str(nIn), 'Output': str(nOut), "Tie Type": "Audio/Video"}))
         tie_tread.start()
 
         fb_tread = threading.Thread(target=self.requestTie, args=(nOut,))

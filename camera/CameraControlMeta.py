@@ -45,6 +45,19 @@ class CameraControlMeta(object):
         """
         pass
 
+
+    @abstractmethod
+    def setPTZangles(self, ptz: dict) -> None:
+        '''
+        Set PTZ angles in degrees
+        Recalc degrees into cam representation and call self.setPTZ()
+        '''
+        pass
+        # cZoom = 0x555 + int((ptz["z"] + zoomOffset) * ((0xFFF - 0x555) / zoomMax))
+        # cPan = int(0x8000 + ((0xD2F5 - 0x8000) / 175) * ptz["p"])
+        # # cTilt = int(0x8000 + ((0x8000 - 0x5555) / 90) * ptz["t"])
+        # self.setPTZ({"p": cPan, "t": cTilt, "z": cZoom})
+
     @abstractmethod
     def callInternalPreset(self, presetId: int) -> None:
         """

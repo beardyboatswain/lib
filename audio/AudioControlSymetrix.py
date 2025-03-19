@@ -257,29 +257,27 @@ class SignalProbe():
 
         self.dev.addSignalProbe(self.rcId, self.fbHandler)
 
-    def __showSignal__(self):
+    def _showSignal_(self):
         if (self.btnProbe is not None):
             self.btnProbe.SetState(1 if self.value else 0)
 
     def setMechanics(self, btnProbeId: int):
         self.btnProbe = Button(self.ui, btnProbeId)
-        self.__showSignal__()
+        self._showSignal_()
 
     def fbHandler(self, rcId: int, value: int):
         if (self.rcId == rcId) and (self.value != self.sc.itobool(value)):
             self.value = self.sc.itobool(value)
+            self._showSignal_()
             self.executeCallback()
-            self.__showSignal__()
 
     def addCallback(self, callbackMethod: Callable[[int, bool], None]):
-        dbg.print("SignalProbe Callback add: {}".format(callbackMethod))
         if callable(callbackMethod):
             self.fbCallbackFunctions.append(callbackMethod)
 
     def executeCallback(self):
         for iFunc in self.fbCallbackFunctions:
             iFunc(self.rcId, self.value)
-            dbg.print("SignalProbe Callback exec: {}".format(iFunc))
 
 
 class PresetControl():
