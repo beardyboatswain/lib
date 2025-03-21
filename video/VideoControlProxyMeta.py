@@ -9,27 +9,27 @@ class MatrixControlProxyMeta(object):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        self.fbCallbackFunctions = list()
+        self.callback_functions = list()
         self.inSize = 0
         self.outSize = 0
         self.states = dict()
 
     @abstractmethod
-    def setTie(self, nOut: int, nIn: int):
+    def set_tie(self, n_out: int, n_in: int):
         """
         Switch input inN to output outN
         """
         pass
 
     @abstractmethod
-    def getTie(self, nOut: int) -> int:
+    def get_tie(self, n_out: int) -> int:
         """
         Retrun input number switched to output outN
         """
         pass
 
     @abstractmethod
-    def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int, int], None]):
+    def add_callback_functions(self, callback_function: Callable[[int, int], None]):
         """
         Set function for FB
         callbackFunction(outNFb: int, inNFb: int) -> None
@@ -37,7 +37,7 @@ class MatrixControlProxyMeta(object):
         """
 
     @abstractmethod
-    def executeCallbackFunctions(self, nOut: int, nIn: int):
+    def execute_callback_functions(self, n_out: int, nIn: int):
         """
         Execute all callback functions
         """

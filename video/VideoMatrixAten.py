@@ -46,7 +46,7 @@ class MatrixAten(VideoControlProxyMeta):
         self.device.subscribe('ReceiveData', self.rxEventHandler)
         self.device.connect()
 
-        self.addFbFunction(self.executeCallbackFunctions)
+        self.addFbFunction(self.execute_callback_functions)
 
         # self.pollTimeInterval = 30
         # self.refreshFbTimer = Timer(self.pollTimeInterval, self.refreshTie)
@@ -67,7 +67,7 @@ class MatrixAten(VideoControlProxyMeta):
         self.device.send(cmd)
         dbg.print("READ request")
 
-    def setTie(self, nOut: int, nIn: int):
+    def set_tie(self, nOut: int, nIn: int):
         if (1 <= nIn <= self.inSize) and (1 <= nOut <= self.outSize):
             cmd = 'sw i{:02} o{:02}\x0d'.format(nIn, nOut)
             self.device.send(cmd)
@@ -78,19 +78,19 @@ class MatrixAten(VideoControlProxyMeta):
 
             self.requestTie()
 
-    def getTie(self, nOut: int) -> int:
+    def get_tie(self, nOut: int) -> int:
         return self.states.get(nOut)
 
     def setAudioDmbdOut(self, nOut: int):
         if (1 <= nOut <= self.outSize):
             self.audioDmbdOut = nOut
 
-    def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int, int], None]):
+    def add_callback_functions(self, fbCallbackFunction: Callable[[int, int], None]):
         if (callable(fbCallbackFunction)):
-            self.fbCallbackFunctions.append(fbCallbackFunction)
+            self.callback_functions.append(fbCallbackFunction)
 
-    def executeCallbackFunctions(self, nOut: int, nIn: int):
-        for func in self.fbCallbackFunctions:
+    def execute_callback_functions(self, nOut: int, nIn: int):
+        for func in self.callback_functions:
             func(nOut, nIn)
 
     def connectEventHandler(self, interface, state):
@@ -108,7 +108,7 @@ class MatrixAten(VideoControlProxyMeta):
                 outN = int(matchObjectTieMatchPattern.group(1))
                 inN = int(matchObjectTieMatchPattern.group(2))
                 self.states[outN] = inN
-                self.executeCallbackFunctions(outN, inN)
+                self.execute_callback_functions(outN, inN)
 
                 if (outN == self.outSize):
                     return

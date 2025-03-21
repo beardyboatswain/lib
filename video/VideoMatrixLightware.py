@@ -36,7 +36,7 @@ class MatrixLightware(VideoControlProxyMeta):
         self.device.subscribe('ReceiveData', self.rxEventHandler)
         self.device.connect()
 
-        self.addFbFunction(self.executeCallbackFunctions)
+        self.addFbFunction(self.execute_callback_functions)
 
     def addFbFunction(self, fbCallbackFunc: Callable[[int, int], None]):
         if callable(fbCallbackFunc):
@@ -51,7 +51,7 @@ class MatrixLightware(VideoControlProxyMeta):
     def requestTie(self):
         self.device.send("GET /MEDIA/XP/VIDEO.DestinationConnectionStatus\x0d\x0a")
 
-    def setTie(self, nOut: int, nIn: int):
+    def set_tie(self, nOut: int, nIn: int):
         if (nIn == 0):
             self.device.send("CALL /MEDIA/XP/VIDEO:switch(0:O{})\x0d\x0a".format(nOut))
         else:
@@ -59,15 +59,15 @@ class MatrixLightware(VideoControlProxyMeta):
 
         self.requestTie()
 
-    def getTie(self, nOut: int) -> int:
+    def get_tie(self, nOut: int) -> int:
         return self.states.get(nOut)
 
-    def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int, int], None]):
+    def add_callback_functions(self, fbCallbackFunction: Callable[[int, int], None]):
         if (callable(fbCallbackFunction)):
-            self.fbCallbackFunctions.append(fbCallbackFunction)
+            self.callback_functions.append(fbCallbackFunction)
 
-    def executeCallbackFunctions(self, nOut: int, nIn: int):
-        for func in self.fbCallbackFunctions:
+    def execute_callback_functions(self, nOut: int, nIn: int):
+        for func in self.callback_functions:
             func(nOut, nIn)
 
     def connectEventHandler(self, interface, state):
@@ -88,7 +88,7 @@ class MatrixLightware(VideoControlProxyMeta):
                 for outN in range(1, self.outSize + 1):
                     self.states[outN] = int(matchObjectSingleVideoFb[outN - 1])
                     inN = self.states[outN]
-                    self.executeCallbackFunctions(outN, inN)
+                    self.execute_callback_functions(outN, inN)
                     dbg.print("Lightware: out {} - in {}".format(outN, inN))
 
         dbg.print("LightwareState {}".format(self.states))

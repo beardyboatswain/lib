@@ -27,7 +27,7 @@ class MatrixWyrestorm(VideoControlProxyMeta):
         self.device.subscribe('ReceiveData', self.rxEventHandler)
         self.device.connect()
 
-        self.addFbFunction(self.executeCallbackFunctions)
+        self.addFbFunction(self.execute_callback_functions)
 
     def addFbFunction(self, fbCallbackFunc: Callable[[int, int], None]):
         if callable(fbCallbackFunc):
@@ -45,19 +45,19 @@ class MatrixWyrestorm(VideoControlProxyMeta):
         else:
             self.device.send("GET MP all\x0d\x0a")
 
-    def setTie(self, nOut: int, nIn: int):
+    def set_tie(self, nOut: int, nIn: int):
         self.device.send("SET SW hdmiin{} hdmiout{}\x0d\x0a".format(nIn, nOut))
         self.requestTie(nOut=nOut)
 
-    def getTie(self, nOut: int) -> int:
+    def get_tie(self, nOut: int) -> int:
         return self.states.get(nOut)
 
-    def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int, int], None]):
+    def add_callback_functions(self, fbCallbackFunction: Callable[[int, int], None]):
         if (callable(fbCallbackFunction)):
-            self.fbCallbackFunctions.append(fbCallbackFunction)
+            self.callback_functions.append(fbCallbackFunction)
 
-    def executeCallbackFunctions(self, nOut: int, nIn: int):
-        for func in self.fbCallbackFunctions:
+    def execute_callback_functions(self, nOut: int, nIn: int):
+        for func in self.callback_functions:
             func(nOut, nIn)
 
     def connectEventHandler(self, interface, state):
@@ -78,7 +78,7 @@ class MatrixWyrestorm(VideoControlProxyMeta):
                 inN = int(matchObjectVideoFb.group(1))
                 outN = int(matchObjectVideoFb.group(2))
                 self.states[outN] = inN
-                self.executeCallbackFunctions(outN, inN)
+                self.execute_callback_functions(outN, inN)
                 dbg.print("Wyrestorm: out {} - in {}".format(outN, self.states[outN]))
 
         dbg.print("wyrestormState {}".format(self.states))

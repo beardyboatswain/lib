@@ -106,7 +106,7 @@ class PseudoSeamless(VideoControlProxyMeta):
         outs: List[int] - list of outputs, connected to seamlesmatrix
         '''
         self.bv_matrix = matrix
-        self.bv_matrix.addFbCallbackFunction(self.break_video_matrix_fb)
+        self.bv_matrix.add_callback_functions(self.break_video_matrix_fb)
         self.bv_in_size = self.bv_matrix.inSize
         self.bv_outs = outs
         self.bv_outs_lifo.set_max_size(len(outs))
@@ -114,14 +114,14 @@ class PseudoSeamless(VideoControlProxyMeta):
             self.bv_outs_lifo.add(item)
 
         for i_out in outs:
-            self.bv_states[i_out] = self.bv_matrix.getTie(i_out)
+            self.bv_states[i_out] = self.bv_matrix.get_tie(i_out)
 
     def add_seamless_matrix(self, matrix: VideoControlProxyMeta) -> None:
         self.sm_matrix = matrix
         self.sm_out_size = self.sm_matrix.outSize
-        self.sm_matrix.addFbCallbackFunction(self.seamless_matrix_fb)
+        self.sm_matrix.add_callback_functions(self.seamless_matrix_fb)
         for i_out in range(1, self.sm_out_size + 1):
-            self.sm_states[i_out] = self.sm_matrix.getTie(i_out)
+            self.sm_states[i_out] = self.sm_matrix.get_tie(i_out)
     
     def add_wiring(self, wiring: Dict[int, int]) -> None:
         '''
@@ -155,7 +155,7 @@ class PseudoSeamless(VideoControlProxyMeta):
                 #                                                                    sm_current_out_state,
                 #                                                                    bv_current_out,
                 #                                                                    bv_current_out_state))
-                self.executeCallbackFunctions(i_out, self.states[i_out])
+                self.execute_callback_functions(i_out, self.states[i_out])
 
     def print_states(self, timer: Timer, count: int) -> None:
         dbg.print('States:')
@@ -169,19 +169,30 @@ class PseudoSeamless(VideoControlProxyMeta):
         dbg.print('Seamless Matrix:')
         for i_out in self.sm_states.keys():
             dbg.print('in[{}] >> out[{}]'.format(self.sm_states.get(i_out), i_out))
+        # dbg.print('State Pseudoseamless:')
+        # for i_out in self.bv_states.keys():
+        #     bv_in = self.bv_states.get(i_out)
+        #     bv_out = i_out
+        #     for i in self.wiring.keys():
+        #         if self.wiring.get(i) == bv_out:
+        #             sm_in = i
+        #     for i in self.sm_states.keys():
+        #         if self.sm_states.get(i) == sm_in:
+        #             sm_out = i
+        #     dbg.print('{0} -> {3} : in[{0}] >> out[{1}] ---> in[{2}] >> out[{3}]'.format(bv_in, bv_out, sm_in, sm_out))
 
-    def setTie(self, nOut: int, nIn: int):
-        dbg.print('Set tie on SEAMLESS: in[{}] >> out[{}]'.format(nIn, nOut))
-        if self.states.get(nOut) == nIn:
+    def set_tie(self, n_out: int, n_in: int):
+        dbg.print('Set tie on SEAMLESS: in[{}] >> out[{}]'.format(n_in, n_out))
+        if self.states.get(n_out) == n_in:
             dbg.print('Tie already set')
-        elif nIn in self.bv_states.values():
+        elif n_in in self.bv_states.values():
             dbg.print('Tie is on the one of outputs of bv_matrix')
             # нужно найти, на каком выходе 
             needed_link_bv_out = 0
             for i_out in self.bv_states.keys():
-                if self.bv_states.get(i_out) == nIn:
+                if self.bv_states.get(i_out) == n_in:
                     needed_link_bv_out = i_out
-            dbg.print('BV Matrix: in[{}] >> out[{}]'.format(nIn, needed_link_bv_out))
+            dbg.print('BV Matrix: in[{}] >> out[{}]'.format(n_in, needed_link_bv_out))
             # нужно найти, на каком выходе бесподрывника
             needed_link_sm_in = 0
             for i_in in self.wiring.keys():
@@ -189,8 +200,8 @@ class PseudoSeamless(VideoControlProxyMeta):
                     needed_link_sm_in = i_in
             dbg.print('BW Matrix out[{}] lincked to SM Matix in[{}]'.format(needed_link_bv_out, needed_link_sm_in))
             # коммутируем бесподрывник
-            self.sm_matrix.setTie(nOut, needed_link_sm_in)
-            dbg.print('Switch in[{}] >> out[{}] on SM Matrix'.format(needed_link_sm_in, nOut))
+            self.sm_matrix.set_tie(n_out, needed_link_sm_in)
+            dbg.print('Switch in[{}] >> out[{}] on SM Matrix'.format(needed_link_sm_in, n_out))
         else:
             dbg.print('Tie is NOT on the one of outputs of bv_matrix')
             # нужно найти, какой выход подрывного коммутировался раньше других
@@ -198,8 +209,8 @@ class PseudoSeamless(VideoControlProxyMeta):
             self.bv_outs_lifo.add(last_out_n)
             dbg.print('Far used out: {}'.format(last_out_n))
             # переключаем на этот выход
-            self.bv_matrix.setTie(last_out_n, nIn)
-            dbg.print('Switch in[{}] >> out[{}] on BV Matrix'.format(nIn, last_out_n))
+            self.bv_matrix.set_tie(last_out_n, n_in)
+            dbg.print('Switch in[{}] >> out[{}] on BV Matrix'.format(n_in, last_out_n))
             # нужно найти, на каком выходе бесподрывника
             needed_link_sm_in = 0
             for i_in in self.wiring.keys():
@@ -210,20 +221,20 @@ class PseudoSeamless(VideoControlProxyMeta):
             # коммутируем бесподрывник
             @Wait(self.break_time)
             def seamless_matrix_switch():
-                self.sm_matrix.setTie(nOut, needed_link_sm_in)
-                dbg.print('Switch in[{}] >> out[{}] on SM Matrix'.format(needed_link_sm_in, nOut))
+                self.sm_matrix.set_tie(n_out, needed_link_sm_in)
+                dbg.print('Switch in[{}] >> out[{}] on SM Matrix'.format(needed_link_sm_in, n_out))
 
             
-    def getTie(self, nOut: int) -> int:
+    def get_tie(self, n_out: int) -> int:
         """
         Retrun input number switched to output outN
         """
-        return self.states.get(nOut)
+        return self.states.get(n_out)
 
-    def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int, int], None]):
-        if (callable(fbCallbackFunction)):
-            self.fbCallbackFunctions.append(fbCallbackFunction)
+    def add_callback_functions(self, callback_function: Callable[[int, int], None]):
+        if (callable(callback_function)):
+            self.callback_functions.append(callback_function)
 
-    def executeCallbackFunctions(self, nOut: int, nIn: int):
-        for func in self.fbCallbackFunctions:
-            func(nOut, nIn)
+    def execute_callback_functions(self, n_out: int, n_in: int):
+        for func in self.callback_functions:
+            func(n_out, n_in)

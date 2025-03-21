@@ -3,6 +3,7 @@
 
 from typing import Callable
 import re
+import threading
 
 from extronlib.system import Timer, Wait
 
@@ -69,69 +70,85 @@ class MatrixInfobitHxxHAW(VideoControlProxyMeta):
         self.inSize = inSize
         self.outSize = outSize
 
-        self.fbFunctions = list()
-
         self.matchSingleTieAFb = re.compile("IN([0-9]{1,2}) VIDEO OUT([0-9]{1,2})")
         self.matchSingleTieBFb = re.compile("OUT([0-9]{1,2}) VIDEO IN([0-9]{1,2})")
 
-        self.device.subscribe('Connected', self.connectEventHandler)
-        self.device.subscribe('Disconnected', self.connectEventHandler)
-        self.device.subscribe('ReceiveData', self.rxEventHandler)
+        self.device.subscribe('Connected', self.connect_event_handler)
+        self.device.subscribe('Disconnected', self.connect_event_handler)
+        self.device.subscribe('ReceiveData', self.rx_event_handler)
         self.device.connect()
 
-        self.addFbFunction(self.executeCallbackFunctions)
+        # self.add_callback_functions(self.execute_callback_functions)
 
-        self.refreshFbTimer = Timer(30, self.refreshTies)
+        self.refreshFbTimer = Timer(60, self.refresh_ties)
 
-    def addFbFunction(self, fbCallbackFunc: Callable[[int, int], None]):
-        if callable(fbCallbackFunc):
-            self.fbFunctions.append(fbCallbackFunc)
+    # def addFbFunction(self, fbCallbackFunc: Callable[[int, int], None]):
+    #     if callable(fbCallbackFunc):
+    #         self.fbFunctions.append(fbCallbackFunc)
+    #     else:
+    #         raise TypeError("Param 'callbackFb' is not Callable")
+
+    # def executeFbFunctions(self, nOut: int, nIn: int):
+    #     for cFunc in self.fbFunctions:
+    #         cFunc(nOut, nIn)
+
+    def refresh_ties(self, timer: Timer, count: int):
+        for i_out in range(1, self.outSize + 1):
+            self.request_tie(i_out)
+        # self.send_feedback()
+
+    def request_tie(self, n_out: int) -> None:
+        cmd = "GET OUT{} VIDEO\x0d\x0a".format(n_out).encode('ascii')
+        self.device.send(cmd)
+        # self.send_feedback()
+
+    def set_tie(self, n_out: int, n_in: int):
+        if (1 <= n_in <= self.inSize) and (1 <= n_out <= self.outSize):
+            dbg.print("Set tie: out<{}> - in<{}>".format(n_out, n_in))
+            cmd = "SET IN{} VIDEO OUT{}\x0d\x0a".format(n_in, n_out).encode('ascii')
+            self.device.send(cmd)
+            update_state_tread = threading.Thread(target=self.update_state, args=(n_out, n_in))
+            update_state_tread.start()
+            # self.update_state(n_out, n_in)
+        @Wait(5)
+        def request_time_timer():
+            request_tie_tread = threading.Thread(target=self.request_tie, args=(n_out,))
+            request_tie_tread.start()
+            # self.request_tie(n_out)
+
+    def get_tie(self, n_out: int) -> int:
+        return self.states.get(n_out)
+
+    def add_callback_functions(self, fb_callback_function: Callable[[int, int], None]):
+        if (callable(fb_callback_function)):
+            self.callback_functions.append(fb_callback_function)
         else:
             raise TypeError("Param 'callbackFb' is not Callable")
 
-    def executeFbFunctions(self, nOut: int, nIn: int):
-        for cFunc in self.fbFunctions:
-            cFunc(nOut, nIn)
+    def execute_callback_functions(self, n_out: int, n_in: int):
+        dbg.print("Run fbCallback: out<{}> - in<{}>".format(n_out, n_in))
+        for func in self.callback_functions:
+            func(n_out, n_in)
 
-    def refreshTies(self, timer: Timer, count: int):
-        for iOut in range(1, self.outSize + 1):
-            self.requestTie(iOut)
-        self.sendFeedbackForAllOuts()
-
-    def requestTie(self, nOut: int) -> None:
-        cmd = "GET OUT{} VIDEO\x0d\x0a".format(nOut).encode('ascii')
-        self.device.send(cmd)
-        self.sendFeedbackForAllOuts()
-
-    def setTie(self, nOut: int, nIn: int):
-        if (1 <= nIn <= self.inSize) and (1 <= nOut <= self.outSize):
-            cmd = "SET IN{} VIDEO OUT{}\x0d\x0a".format(nIn, nOut).encode('ascii')
-            self.device.send(cmd)
-        self.requestTie(nOut)
-
-    def getTie(self, nOut: int) -> int:
-        return self.states.get(nOut)
-
-    def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int, int], None]):
-        if (callable(fbCallbackFunction)):
-            self.fbCallbackFunctions.append(fbCallbackFunction)
-
-    def executeCallbackFunctions(self, nOut: int, nIn: int):
-        dbg.print("Run fbCallback: out<{}> - in<{}>".format(nOut, nIn))
-        for func in self.fbCallbackFunctions:
-            func(nOut, nIn)
-
-    def connectEventHandler(self, interface, state):
+    def connect_event_handler(self, interface, state):
         dbg.print("Connection Handler: {} {}".format(interface, state))
         if (state == 'Connect'):
-            self.requestTie()
+            self.request_tie()
             dbg.print("Infobit Connected!")
 
-    def rxParser(self, rxLines: str):
+    def update_state(self, n_out: int, n_in: int):
+        if (self.states.get(n_out) == n_in):
+            return
+        else:
+            self.states[n_out] = n_in
+            self.send_feedback(n_out)
+            self.execute_callback_functions(n_out, self.states[n_out])
+        
+    def rx_parser(self, rxLines: str):
         dataLines = rxLines
-        dbg.print("rxParser recieved lines:")
-        dbg.print("Type: {}".format(type(dataLines.split("\x0d"))))
-        dbg.print(dataLines.split("\x0d"))
+        # dbg.print("rxParser recieved lines:")
+        # dbg.print("Type: {}".format(type(dataLines.split("\x0d"))))
+        # dbg.print(dataLines.split("\x0d"))
 
         for rxLine in dataLines.split("\x0d"):
             dbg.print("Analise string: <{}>".format(rxLine))
@@ -140,33 +157,33 @@ class MatrixInfobitHxxHAW(VideoControlProxyMeta):
             matchObjectSingleTieBFb = self.matchSingleTieBFb.search(rxLine)
 
             if matchObjectSingleTieAFb:
-                inN = int(matchObjectSingleTieAFb.group(1))
-                outN = int(matchObjectSingleTieAFb.group(2))
-                self.states[outN] = inN
-                self.executeCallbackFunctions(outN, inN)
+                n_in = int(matchObjectSingleTieAFb.group(1))
+                n_out = int(matchObjectSingleTieAFb.group(2))
+                self.update_state(n_out, n_in)
             elif matchObjectSingleTieBFb:
-                inN = int(matchObjectSingleTieBFb.group(2))
-                outN = int(matchObjectSingleTieBFb.group(1))
-                self.states[outN] = inN
-                self.executeCallbackFunctions(outN, inN)
+                n_in = int(matchObjectSingleTieBFb.group(2))
+                n_out = int(matchObjectSingleTieBFb.group(1))
+                self.update_state(n_out, n_in)
             elif (len(rxLine) == 15) and rxLine.startswith("\x7B\x7B\x11\x08") and rxLine.endswith("\x7D\x7D"):
                 ties = rxLine[4:12]
                 for i in range(0, len(ties)):
-                    outN = i + 1
-                    inN = ord(ties[i]) + 1
-                    self.states[outN] = inN
-                    # self.executeCallbackFunctions(outN, inN)
-                self.sendFeedbackForAllOuts()
-        dbg.print("Infobit State {}".format(self.states))
+                    n_out = i + 1
+                    n_in = ord(ties[i]) + 1
+                    self.update_state(n_out, n_in)
 
-    def rxEventHandler(self, interface, data):
+
+    def rx_event_handler(self, interface, data):
         # dbg.print("From Infobit recieved: ")
         # dbg.print(data)
-        self.rxParser(data.decode())
+        self.rx_parser(data.decode())
 
-    def sendFeedbackForAllOuts(self):
-        for iOut in self.states:
-            inN = self.states[iOut]
-            outN = iOut
-            if (0 <= inN <= self.inSize) and (0 < outN <= self.outSize):
-                self.executeCallbackFunctions(outN, inN)
+    def send_feedback(self, n_out: int = None):
+        if n_out:
+            n_in = self.states[n_out]
+            if (0 <= n_in <= self.inSize) and (0 < n_out <= self.outSize):
+                self.execute_callback_functions(n_out, n_in)
+        else:
+            for i_out in self.states.keys():
+                n_in = self.states[i_out]
+                if (0 <= n_in <= self.inSize) and (0 < n_out <= self.outSize):
+                    self.execute_callback_functions(n_out, n_in)

@@ -89,19 +89,19 @@ class VideoControlProxyKramer(VideoControlProxyMeta):
 
         self._fbCallbackFunctions = list()
 
-        self._dev.addFbFunction(self.executeCallbackFunctions)
+        self._dev.addFbFunction(self.execute_callback_functions)
 
-    def setTie(self, nOut: int, nIn: int):
+    def set_tie(self, nOut: int, nIn: int):
         self._dev.setTie(nOut=nOut, nIn=nIn)
 
-    def getTie(self, nOut: int) -> int:
+    def get_tie(self, nOut: int) -> int:
         return self._dev.getTie(nOut=nOut)
 
-    def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int, int], None]):
+    def add_callback_functions(self, fbCallbackFunction: Callable[[int, int], None]):
         if (callable(fbCallbackFunction)):
             self._fbCallbackFunctions.append(fbCallbackFunction)
 
-    def executeCallbackFunctions(self, nOut: int, nIn: int):
+    def execute_callback_functions(self, nOut: int, nIn: int):
         for func in self._fbCallbackFunctions:
             func(nOut, nIn)
 

@@ -43,6 +43,8 @@ class CameraControlProcessor():
         self.activeCam: CameraControlMeta = None
 
         self.camInputs = dict()
+
+        # list of outputs on self.camSwitcher for active camera tieing
         self.activeCamOuts = list()
 
         self.camSwitcher = None
@@ -93,13 +95,19 @@ class CameraControlProcessor():
         dbg.print("Cams: {}".format(self.cams))
         
         if (camID in self.cams.keys()):
-            self.activeCam = self.cams.get(camID)
-            dbg.print("ActiveCam: {}".format(self.activeCam))
-            self.execCallbackFbActiveCam()
+            # !!!
+            # self.activeCam = self.cams.get(camID)
+            
             if self.autoCamOnAirFl:
-                self.switchCamera(self.activeCam.id)
-                # dbg.print("Active camera switched to {}".format(self.activeCam.id))
-            return self.activeCam
+                # !!!
+                # self.switchCamera(self.activeCam.id)
+                self.switchCamera(camID)
+
+            # !!!
+            # self.execCallbackFbActiveCam()
+            # !!!
+            # return self.activeCam
+            return None
         else:
             dbg.print("Wrong camID ({}). No such camera in CameraControlProcessor.".format(camID))
             return None
@@ -196,6 +204,7 @@ class CameraControlProcessor():
         self.switchCamera(self.activeCam.id)
 
     def fbFromSwitcher(self, nOut: int, nIn: int) -> None:
+        pass
         # dbg.print("CAMERA - Out <{}> - In <{}>".format(nOut, nIn))
         if (self.autoCamOnAirFl and (nOut in self.activeCamOuts)):
             self.activeCam = self.getCameraBySwitchInput(nIn)
@@ -203,7 +212,7 @@ class CameraControlProcessor():
 
     def addCamSwitcher(self, camSw: VideoControlProxyMeta):
         self.camSwitcher = camSw
-        self.camSwitcher.addFbCallbackFunction(self.fbFromSwitcher)
+        self.camSwitcher.add_callback_functions(self.fbFromSwitcher)
 
     def addCamSwitcherActiveCamOutput(self, videoOutputs: List[int]) -> None:
         '''
@@ -212,11 +221,12 @@ class CameraControlProcessor():
         self.activeCamOuts.extend(videoOutputs)
 
     def switchCamera(self, camId: int):
+        # todo тут вставить сразу переключение на новую камеру, а потом уже ждать
         camIn = self.camInputs.get(int(camId))
         if (camIn > 0):
             for iOut in self.activeCamOuts:
                 dbg.print("Trying to switch camera <{}>, input <{}> -> output <{}>".format(camId, camIn, iOut))
-                self.camSwitcher.setTie(nOut=iOut, nIn=camIn)
+                self.camSwitcher.set_tie(n_out=iOut, n_in=camIn)
 
     def callPTZ(self, cam_id: int, ptz: dict) -> None:
         '''

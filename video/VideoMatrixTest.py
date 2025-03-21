@@ -30,7 +30,7 @@ class MatrixTest(MatrixControlProxyMeta):
         self.states = dict()
         self.fbFunctions = list()
 
-        self.addFbFunction(self.executeCallbackFunctions)
+        self.addFbFunction(self.execute_callback_functions)
 
         self.refreshFbTimer = Timer(20, self.refreshTies)
 
@@ -52,24 +52,24 @@ class MatrixTest(MatrixControlProxyMeta):
         dbg.print("requestTies")
         @Wait(0.1)
         def request_cmd():
-            self.executeCallbackFunctions(nOut, self.states.get(nOut))
+            self.execute_callback_functions(nOut, self.states.get(nOut))
 
-    def setTie(self, nOut: int, nIn: int):
+    def set_tie(self, nOut: int, nIn: int):
         dbg.print("MatrixTieCommand: out[{}] - in[{}]".format(nOut, nIn))
         @Wait(0.1)
         def send_cmd():
             self.states[nOut] = nIn
             self.requestTie(nOut=nOut)
 
-    def getTie(self, nOut: int) -> int:
+    def get_tie(self, nOut: int) -> int:
         return self.states.get(nOut)
 
-    def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int, int], None]):
+    def add_callback_functions(self, fbCallbackFunction: Callable[[int, int], None]):
         if (callable(fbCallbackFunction)):
-            self.fbCallbackFunctions.append(fbCallbackFunction)
+            self.callback_functions.append(fbCallbackFunction)
 
-    def executeCallbackFunctions(self, nOut: int, nIn: int):
-        for func in self.fbCallbackFunctions:
+    def execute_callback_functions(self, nOut: int, nIn: int):
+        for func in self.callback_functions:
             func(nOut, nIn)
 
     # def fbOutputTieStatusEventHandler(self, command, value, qualifier):
@@ -81,4 +81,4 @@ class MatrixTest(MatrixControlProxyMeta):
         for iOut in self.states.keys():
             inN = self.states[iOut]
             if (0 <= inN <= self.inSize) and (0 < iOut <= self.outSize):
-                self.executeCallbackFunctions(iOut, inN)
+                self.execute_callback_functions(iOut, inN)

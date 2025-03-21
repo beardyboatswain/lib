@@ -30,6 +30,7 @@ class LCDSonyEthernet(DevicePowerMeta):
         self.power = "Off"
 
         self.fbCallbackFunctions = list()
+        self.updating_fl = False
 
         self.dev.subscribe('Connected', self.connectEventHandler)
         self.dev.subscribe('Disconnected', self.connectEventHandler)
@@ -60,10 +61,11 @@ class LCDSonyEthernet(DevicePowerMeta):
         return self.power
 
     def tgl_power(self):
-        if (self.power == "On"):
-            self.set_power("Off")
-        else:
-            self.set_power("On")
+        if not self.updating_fl:
+            if (self.power == "On"):
+                self.set_power("Off")
+            else:
+                self.set_power("On")
 
     def add_fb_callback_function(self, fbCallbackFunction: Callable[[str], None]):
         if callable(fbCallbackFunction):
@@ -79,10 +81,10 @@ class LCDSonyEthernet(DevicePowerMeta):
         dbg.print("Bravia {} is {}!".format(self.dev.ip, state))
 
     def pollDevice(self, timer, counter):
-        # self.dev.send("POWER REQUEST")
         self.dev.send("*SEPOWR################\x0a")
 
     def set_power(self, power: str):
+        self.updating_fl = True
         if (power == "On"):
             self.dev.send("*SCPOWR0000000000000001\x0a")
             # dbg.print("Brabia Power ON sent")
@@ -103,9 +105,11 @@ class LCDSonyEthernet(DevicePowerMeta):
             if (rxLine.find("*SAPOWR0000000000000001") > -1):
                 self.power = "On"
                 self.showFb()
+                self.updating_fl = False
             elif (rxLine.find("*SAPOWR0000000000000000") > -1):
                 self.power = "Off"
                 self.showFb()
+                self.updating_fl = False
 
     def rxEventHandler(self, interface, data):
         # dbg.print("Sony {} recieved: {} ".format(self.dev.ip, data.decode()))

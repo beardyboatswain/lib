@@ -259,7 +259,7 @@ class VideoControl(object):
         self.UIHost = UIHost
 
         self.videoControlProxy = videoControlProxy
-        self.videoControlProxy.addFbCallbackFunction(self._feedbackHandler)
+        self.videoControlProxy.add_callback_functions(self._feedbackHandler)
 
         self.outButtons = dict()
         self.inButtons = dict()
@@ -311,7 +311,7 @@ class VideoControl(object):
 
     def switch(self, nOut: int, nIn: int):
         dbg.print("Switching!!!!!!!!!")
-        self.videoControlProxy.setTie(nOut, nIn)
+        self.videoControlProxy.set_tie(nOut, nIn)
 
         # switch linked outputs
         for iCon in self._connectedOuts:
@@ -323,11 +323,11 @@ class VideoControl(object):
                     if (nIn in iCon["in"]):
                         for iOut in iCon["slave"]:
                             dbg.print("Linked switch out {} - in {} ".format(iOut, nIn))
-                            self.videoControlProxy.setTie(iOut, nIn)
+                            self.videoControlProxy.set_tie(iOut, nIn)
                 else:
                     for iOut in iCon["slave"]:
                         dbg.print("Linked switch out {} - in {} ".format(iOut, nIn))
-                        self.videoControlProxy.setTie(iOut, nIn)
+                        self.videoControlProxy.set_tie(iOut, nIn)
 
     def addConnectedOutputs(self, mainOut: int, slaveOuts: list, inclIns: list = None):
         """
@@ -486,7 +486,7 @@ class VideoOutFastTie(object):
 
         self.videoControl = videoControl
         # todo что это за колбэк
-        self.videoControl.videoControlProxy.addFbCallbackFunction(self._feedbackHandler)
+        self.videoControl.videoControlProxy.add_callback_functions(self._feedbackHandler)
 
         self.output = output
         # self.outputName = outputName
