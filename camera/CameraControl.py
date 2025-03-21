@@ -24,7 +24,7 @@ from lib.video.VideoControlProxyMeta import VideoControlProxyMeta
 from lib.camera.CameraControlMeta import CameraControlMeta
 
 import lib.utils.debugger as debugger
-dbg = debugger.debuggerNet('time', __name__)
+dbg = debugger.debuggerNet('no', __name__)
 
 
 class CameraControlProcessor():
@@ -88,7 +88,7 @@ class CameraControlProcessor():
         self.cams[camera.id] = camera
         self.camInputs[camera.id] = videoMatrixIn
         if (camera.id == 1):
-            self.setActiveCamera(camera.id)
+            self.switchCamera(camera.id)
 
     def setActiveCamera(self, camID: int) -> None:
         dbg.print("setActiveCamera: {}".format(camID))

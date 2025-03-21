@@ -85,6 +85,7 @@ class NumberInputSpinner(object):
 
     def set_digits_number(self, digits_number: int):
         self.digits = digits_number
+        self.update_label()
 
     def update_label(self):
         self.value_lbl.SetText('{:0{width}d}'.format(self.value, width=self.digits))
