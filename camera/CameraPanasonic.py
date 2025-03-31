@@ -237,32 +237,6 @@ class CameraControlPanasonic(CameraControlMeta):
 
 
 """
-@signals.on(signals=["Camera", "cam_position", "RX", "cam_preset", "Preset"])
-def signalCameraHandler(signal, params):
-    global presets
-    if signal == "Camera":
-
-    elif (signal == "Preset"):
-        dbg.print("Sig={} Para={}".format(signal, params))
-        if params.get("action") == "Call":
-            dbg.print("CALL PRESET: {}".format(params.get("preset")))
-            callPreset(params.get("preset"))
-        elif params.get("action") == "Store":
-            dbg.print("SAVE PRESET: {}".format(params.get("preset")))
-            savePreset(params.get("camera"), params.get("preset"))
-        elif params.get("action") == "Preset":
-            if (params.get("direction") == "Save") and (params.get("id") in camsIPs.keys()):
-                savePreset(params.get("id"), params.get("preset"))
-            elif params.get("direction") == "Call":
-                callPreset(params.get("preset"))
-
-    elif (signal == "cam_position") and (params.get("Cmd") == "Set"):
-        dbg.print("SIG<{}> PARA<{}>".format(signal, params))
-
-        # !!! #[command][data1][data2]\x0d
-"""
-
-"""
         # UpperCase only
         # pan D2F5 (+52f5) - full right +175  - 121 - 1degree
         # pan 2D09 (-52F7) - full left  -175  - 121 - 1degree

@@ -221,7 +221,6 @@ class CameraControlProcessor():
         self.activeCamOuts.extend(videoOutputs)
 
     def switchCamera(self, camId: int):
-        # todo тут вставить сразу переключение на новую камеру, а потом уже ждать
         camIn = self.camInputs.get(int(camId))
         if (camIn > 0):
             for iOut in self.activeCamOuts:
@@ -282,7 +281,6 @@ class CameraControlPanel(object):
             if state == sPressed:
                 btn.SetState(1)
                 if self.activeCam:
-                    # todo проверить что не меняется при смене пресета на другую камеру
                     self.movingCam = self.activeCam
                     self.activeCam.move(direction=getattr(btn, "direction"), action="Move")
             elif state == sReleased:

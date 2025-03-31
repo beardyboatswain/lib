@@ -63,7 +63,7 @@ class SwitcherControlProxyMeta(object):
         pass
 
     @abstractmethod
-    def getTie(self) -> int:
+    def getTie(self, nOut:int) -> int:
         """
         Retrun input number switched to output
         """
