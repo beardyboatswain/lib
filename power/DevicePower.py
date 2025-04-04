@@ -10,7 +10,7 @@ from extronlib.ui import Button, Label
 
 import lib.utils.signals as signals
 from lib.var.states import sStates, sPressed, sReleased
-from lib.utils.system_init import InitModule
+from lib.utils.module_init import InitModule
 
 from lib.power.DevicePowerMeta import DevicePowerMeta
 

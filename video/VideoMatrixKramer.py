@@ -4,7 +4,7 @@
 from typing import Callable
 import re
 
-from lib.utils.system_init import InitModule
+from lib.utils.module_init import InitModule
 
 import lib.utils.signals as signals
 

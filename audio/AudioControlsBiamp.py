@@ -7,7 +7,7 @@ from extronlib.ui import Button, Label, Level
 from extronlib.system import Clock, MESet, Timer, Wait
 
 import lib.utils.signals as signals
-from lib.utils.system_init import InitModule
+from lib.utils.module_init import InitModule
 from lib.var.states import sPressed, sReleased, sHeld, sTapped, sRepeated, sStates
 
 from lib.audio.AudioProxyBiamp import AudioProxyBiampTesira

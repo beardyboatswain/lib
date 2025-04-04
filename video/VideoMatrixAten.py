@@ -6,7 +6,7 @@ import re
 
 from extronlib.system import Timer, Wait
 
-from lib.utils.system_init import InitModule
+from lib.utils.module_init import InitModule
 import lib.utils.signals as signals
 from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 

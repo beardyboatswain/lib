@@ -9,7 +9,7 @@ from extronlib.interface import SerialInterface
 from extronlib.system import Timer
 from extronlib.ui import Button
 
-from lib.utils.system_init import InitModule
+from lib.utils.module_init import InitModule
 from lib.helpers.AutoEthernetConnection import AutoEthernetConnection
 
 from usr.dev.dev import ipad_adm, ipad_usr

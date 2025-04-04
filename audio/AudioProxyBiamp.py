@@ -6,7 +6,7 @@ from typing import Callable
 from extronlib.system import Timer
 
 import lib.drv.gs.gs_biam_dsp_TesiraSeries_v1_15_1_0 as biampTesiraServerIO
-from lib.utils.system_init import InitModule
+from lib.utils.module_init import InitModule
 
 from lib.utils.debugger import debuggerNet as debugger
 dbg = debugger('no', __name__)
