@@ -555,6 +555,7 @@ class VideoInputFastTie(object):
             self._vBtnInName.SetState(0)
             self._vBtnInputIco.SetState(self.vType)
 
+
 class VideoOutFastTie(object):
     def __init__(self,
                  UIHost: UIDevice,
@@ -578,10 +579,9 @@ class VideoOutFastTie(object):
         self._popup_btn = None
         self._popup_btn_name = None
         self._popup_btn_ico = None
-        
+
         self._close_btn = None
         self._popup_name = None
-
 
         self._lblOutputName = Label(self.UIHost, lblOutputNameID)
         self._lblOutputName.SetText(self.outputName)
@@ -691,7 +691,7 @@ class VideoOutFastTiePopup(object):
         self._popup_btns = list()
         self._popup_btn_names = list()
         self._popup_btn_icons = list()
-        
+
         self._close_btns = list()
         self._popups = list()
 

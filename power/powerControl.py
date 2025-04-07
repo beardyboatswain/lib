@@ -5,10 +5,8 @@ from typing import Callable
 
 from extronlib import event, Version
 from extronlib.device import UIDevice
-from extronlib.ui import Button, Knob, Label, Level
-from extronlib.system import Clock, MESet, Timer, Wait
+from extronlib.ui import Button, Label
 
-import lib.utils.signals as signals
 from lib.var.states import sStates, sPressed, sReleased
 from lib.gui.SplashScreen import SplashScreen
 

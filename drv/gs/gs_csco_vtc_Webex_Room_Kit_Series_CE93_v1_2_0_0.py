@@ -309,7 +309,6 @@ class DeviceClass:
 
     def SetPassword(self, value, qualifier):
         if self.devicePassword:
-            
             self.Send('{0}\r\n'.format(self.devicePassword))
         else:
             self.MissingCredentialsLog('Password')

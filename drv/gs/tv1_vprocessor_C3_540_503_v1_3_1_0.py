@@ -2,6 +2,7 @@ from extronlib.interface import SerialInterface, EthernetClientInterface
 import re
 from extronlib.system import Wait, ProgramLog, Timer
 
+
 class DeviceClass:
     def __init__(self):
 

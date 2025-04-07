@@ -9,7 +9,7 @@ import threading
 from extronlib.interface import EthernetClientInterface
 from extronlib.system import Timer, Wait
 
-from lib.drv.gs.extr_matrix_XTPIICrossPointSeries_v1_12_0_1 import EthernetClass
+from lib.drv.gs.gs_extr_matrix_XTPIICrossPointSeries_v1_12_0_1 import EthernetClass
 from lib.helpers.AutoEthernetConnection import AutoEthernetConnection, AutoServerConnection
 from lib.video.VideoControlProxyMeta import MatrixControlProxyMeta
 
@@ -166,7 +166,7 @@ class MatrixXTP(MatrixControlProxyMeta):
         tie_tread = threading.Thread(target=self.device.send, 
                                      args=("{:02}*{:02}{}{}".format(n_in, n_out, self.tie_type, self.oes),))
         tie_tread.start()
-        
+
         update_thread = threading.Thread(target=self.update_state, args=(n_out, n_in))
         update_thread.start()
 
