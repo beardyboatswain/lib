@@ -169,7 +169,7 @@ class LightControlDimmerMA(object):
         self.min_value = 0x00
         self.max_value = 0xff
 
-        self.default_on = (self.max_value - self.min_value) / 100 * 70 
+        self.default_on = (self.max_value - self.min_value) / 100 * 70
 
         self.value = 0x00
 
