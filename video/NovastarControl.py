@@ -6,8 +6,6 @@ from abc import ABCMeta, abstractmethod
 from extronlib.interface import (EthernetClientInterface,
                                  EthernetServerInterfaceEx,
                                  SerialInterface)
-from lib.helpers.AutoSerialConnection import AutoSerialConnection
-from lib.video.VideoControlProxyMeta import SwitcherControlProxyMeta
 
 from extronlib import event
 from extronlib.device import UIDevice
@@ -15,19 +13,16 @@ from extronlib.system import Timer, Wait
 from extronlib.ui import Button
 
 from lib.power.DevicePowerMeta import DevicePowerMeta
-
 from lib.var.states import sStates, sPressed, sReleased
-
-from lib.utils.ipcputils import HexUtils
-
+from lib.drv.gs.gs_nvstr_vprocessor_J6_v1_0_1_0 import EthernetClass as NovastarEthClass
 from lib.utils.debugger import debugger
-LEDPowerTvOne_dbg = 'no'
-dbg = debugger(LEDPowerTvOne_dbg, __name__)
+NovastarControl_dbg = 'no'
+dbg = debugger(NovastarControl_dbg, __name__)
 
 
-class TvOne(DevicePowerMeta):
-    def __init__(self, dev: Union[EthernetClientInterface, EthernetServerInterfaceEx, SerialInterface]):
-        self.dev: Union[EthernetClientInterface, EthernetServerInterfaceEx, SerialInterface] = dev
+class NovastarControl(DevicePowerMeta):
+    def __init__(self, dev: NovastarEthClass):
+        self.dev: NovastarEthClass = dev
 
         self.dev.Connect()
 
@@ -75,7 +70,7 @@ class TvOne(DevicePowerMeta):
     def set_layout(self, layout: int):
         if (layout > 0):
             self.current_layout = layout
-            self.dev.Set('PresetRecall', self.current_layout)
+            self.dev.Set('Preset', self.current_layout, {'Command': 'Load'})
             if (self.current_layout == 1):
                 self.power = "Off"
             else:
@@ -111,72 +106,3 @@ class TvOne(DevicePowerMeta):
         self.execute_callback_functions()
         for iBtn in self.tgl_power_btns:
             iBtn.SetState(2 if self.power == "On" else 0)
-
-
-class TvOneSwitcherControl(SwitcherControlProxyMeta):
-    """
-    Control Class fro Switcher Aten UC3430
-    """
-    def __init__(self,
-                 dev: AutoSerialConnection,
-                 in_size: int):
-        super().__init__()
-
-        self.dev = dev
-        self.current_in = 0
-
-        self.out_number = 1
-
-        self.in_size = in_size
-
-        self.dev.subscribe('Connected', self.connect_event_handler)
-        self.dev.subscribe('Disconnected', self.connect_event_handler)
-        self.dev.subscribe('ReceiveData', self.rx_event_handler)
-
-        self.poll_time_interval = 300
-        self.refresh_fb_timer = Timer(self.poll_time_interval, self.poll)
-        self.refresh_fb_timer.Stop()
-
-    def add_fb_callback_function(self, fb_callback_func: Callable[[int], None]):
-        if callable(fb_callback_func):
-            self.fb_callback_functions.append(fb_callback_func)
-        else:
-            raise TypeError("Param 'callbackFb' is not Callable")
-
-    def execute_callback_functions(self):
-        for i_func in self.fb_callback_functions:
-            i_func(self.out_number, self.current_in)
-
-    def poll(self, timer: Timer, count: int) -> None:
-        pass
-
-    def set_tie(self, n_in: int, n_out: int = 1) -> None:
-        # TvOneInterface.Send('F041041024F000291??\r')
-        # TvOneInterface.Send('F041041024F000292??\r')
-        if (0 <= (n_in - 1) <= (self.in_size - 1)):
-            cmd = 'F041041024F00029{}??\r'.format(n_in)
-            self.current_in = n_in
-            self.dev.send(cmd)
-            self.execute_callback_functions()
-
-    def get_tie(self) -> int:
-        return self.current_in
-
-    def connect_event_handler(self, interface, state):
-        dbg.print("Connection Handler: {} {}".format(interface, state))
-        if (state == 'Connected'):
-            self.dev.send("\x0d")
-            dbg.print("TvOne Switcher Connected!")
-            self.refresh_fb_timer.Restart()
-        elif (state == 'Connected'):
-            self.dev.send("\x0d")
-            dbg.print("TvOne Switcher Connected!")
-
-    def rx_parser(self, rx_lines: str):
-        data_lines = rx_lines
-
-        for rx_line in data_lines.splitlines():
-            dbg.print("Aten: {}".format(rx_line))
-
-    def rx_event_handler(self, interface, data: Union[str, bytes]):
-        self.rx_parser(data.decode())

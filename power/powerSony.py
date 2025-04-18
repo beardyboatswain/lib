@@ -177,11 +177,11 @@ class LCDSonySerialOverEthernet(DevicePowerMeta):
 
     def connectEventHandler(self, interface, state):
         dbg.print("Bravia {} - port {}!".format(self.uid, state))
-        if self.dev.ConnectedFlag:
+        if self.dev.connected_fl:
             self.pollDevice(0, 0)
 
     def pollDevice(self, timer, counter):
-        dbg.print("Bravia {} - pollDevice. Connected {}".format(self.uid, self.dev.ConnectedFlag))
+        dbg.print("Bravia {} - pollDevice. Connected {}".format(self.uid, self.dev.connected_fl))
         self.dev.send(b"\x83\x00\x00\xff\xff\x81")
 
         # [70][00][02][01][73] - power is on

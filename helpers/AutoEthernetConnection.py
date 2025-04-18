@@ -39,7 +39,7 @@ class AutoEthernetConnection(EthernetClientInterface):
         self.ReceiveData = self._ReceiveData
         self.Connected = self._Connected
         self.Disconnected = self._Disconnected
-        self.ConnectedFlag = False
+        self.connected_fl = False
 
         self.func = dict()
         self.tx_buf = list()
@@ -109,7 +109,7 @@ class AutoEthernetConnection(EthernetClientInterface):
 
     def _Connected(self, interface, state):
         dbg.print("Connected to [{}:{}]".format(self.ip, self.port))
-        self.ConnectedFlag = True
+        self.connected_fl = True
         self.autoconnecttimer.Cancel()
         self.pollingtimer.Restart()
         try:
@@ -122,7 +122,7 @@ class AutoEthernetConnection(EthernetClientInterface):
     def _Disconnected(self, interface, state):
         dbg.print("Disconnected from [{}:{}]".format(self.ip, self.port))
         self.pollingtimer.Stop()
-        self.ConnectedFlag = False
+        self.connected_fl = False
         self.autoconnecttimer.Restart()
         try:
             self.func["Disconnected"](interface, state)

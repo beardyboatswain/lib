@@ -235,6 +235,7 @@ class CameraControlProcessor():
         self.setActiveCamera(cam_id)
         self.activeCam.setPTZangles(ptz)
 
+
 class CameraControlPanel(object):
     def __init__(self, uiHost: UIDevice, camProcessor: CameraControlProcessor):
         self.uiHost = uiHost

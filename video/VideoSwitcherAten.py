@@ -18,64 +18,63 @@ class SwitcherAtenUC3430(SwitcherControlProxyMeta):
     Control Class fro Switcher Aten UC3430
     """
     def __init__(self,
-                 device: AutoEthernetConnection,
-                 inSize: int):
+                 dev: AutoEthernetConnection,
+                 in_size: int):
         super().__init__()
 
-        self.device = device
-        self.currentIn = 0
-        self.fbFunctions = list()
+        self.dev = dev
+        self.current_in = 0
 
-        self.inSize = inSize
+        self.in_size = in_size
 
-        self.device.subscribe('Connected', self.connectEventHandler)
-        self.device.subscribe('Disconnected', self.connectEventHandler)
-        self.device.subscribe('ReceiveData', self.rxEventHandler)
-        self.device.connect()
+        self.dev.subscribe('Connected', self.connect_event_handler)
+        self.dev.subscribe('Disconnected', self.connect_event_handler)
+        self.dev.subscribe('ReceiveData', self.rx_event_handler)
+        self.dev.connect()
 
-        self.pollTimeInterval = 300
-        self.refreshFbTimer = Timer(self.pollTimeInterval, self.poll)
-        self.refreshFbTimer.Stop()
+        self.poll_time_interval = 300
+        self.refresh_fb_timer = Timer(self.poll_time_interval, self.poll)
+        self.refresh_fb_timer.Stop()
 
-    def addFbCallbackFunction(self, fbCallbackFunc: Callable[[int], None]):
-        if callable(fbCallbackFunc):
-            self.fbFunctions.append(fbCallbackFunc)
+    def add_fb_callback_function(self, fb_callback_func: Callable[[int], None]):
+        if callable(fb_callback_func):
+            self.fb_callback_functions.append(fb_callback_func)
         else:
             raise TypeError("Param 'callbackFb' is not Callable")
 
-    def executeCallbackFunctions(self):
-        for cFunc in self.fbFunctions:
-            cFunc(self.currentIn)
+    def execute_callback_functions(self):
+        for i_func in self.fb_callback_functions:
+            i_func(self.current_in)
 
     def poll(self, timer: Timer, count: int) -> None:
         cmd = "read\x0d"
-        self.device.send(cmd)
+        self.dev.send(cmd)
 
-    def setTie(self, nIn: int, nOut: int = 1) -> None:
-        if (0 <= (nIn - 1) <= (self.inSize - 1)):
-            cmd = 'scene s{:02}\x0d'.format(nIn - 1)
-            self.currentIn = nIn
-            self.device.send(cmd)
-            self.executeCallbackFunctions()
+    def set_tie(self, n_in: int, n_out: int = 1) -> None:
+        if (0 <= (n_in - 1) <= (self.in_size - 1)):
+            cmd = 'scene s{:02}\x0d'.format(n_in - 1)
+            self.current_in = n_in
+            self.dev.send(cmd)
+            self.execute_callback_functions()
 
-    def getTie(self) -> int:
-        return self.currentIn
+    def get_tie(self) -> int:
+        return self.current_in
 
-    def connectEventHandler(self, interface, state):
+    def connect_event_handler(self, interface, state):
         dbg.print("Connection Handler: {} {}".format(interface, state))
         if (state == 'Connected'):
-            self.device.send("\x0d")
+            self.dev.send("\x0d")
             dbg.print("Aten UC3430 Connected!")
-            self.refreshFbTimer.Restart()
+            self.refresh_fb_timer.Restart()
         elif (state == 'Connected'):
-            self.device.send("\x0d")
+            self.dev.send("\x0d")
             dbg.print("Aten UC3430 Connected!")
 
-    def rxParser(self, rxLines: str):
-        dataLines = rxLines
+    def rx_parser(self, rx_lines: str):
+        data_lines = rx_lines
 
-        for rxLine in dataLines.splitlines():
-            dbg.print("Aten: {}".format(rxLine))
+        for rx_line in data_lines.splitlines():
+            dbg.print("Aten: {}".format(rx_line))
 
-    def rxEventHandler(self, interface, data):
-        self.rxParser(data.decode())
+    def rx_event_handler(self, interface, data):
+        self.rx_parser(data.decode())

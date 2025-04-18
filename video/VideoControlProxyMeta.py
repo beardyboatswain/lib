@@ -43,34 +43,37 @@ class MatrixControlProxyMeta(object):
         """
         pass
 
+
 VideoControlProxyMeta = MatrixControlProxyMeta
 '''
 VideoControlProxyMeta is the previous name for meta-class for maatrix control
 This alias was made for backward compatibility.
 Use MatrixControlProxyMeta instead of VideoControlProxyMeta in the future.
 '''
+
+
 class SwitcherControlProxyMeta(object):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        self.fbCallbackFunctions = list()
+        self.fb_callback_functions = list()
 
     @abstractmethod
-    def setTie(self, nIn: int, nOut: int = 1):
+    def set_tie(self, n_in: int, n_out: int = 1):
         """
         Switch input inN to output
         """
         pass
 
     @abstractmethod
-    def getTie(self, nOut:int) -> int:
+    def get_tie(self, n_out: int) -> int:
         """
-        Retrun input number switched to output
+        Return input number switched to output
         """
         pass
 
     @abstractmethod
-    def addFbCallbackFunction(self, fbCallbackFunction: Callable[[int], None]):
+    def add_fb_callback_function(self, fb_callback_function: Callable[[int], None]):
         """
         Set function for FB
         callbackFunction(outNFb: int, inNFb: int) -> None
@@ -78,7 +81,7 @@ class SwitcherControlProxyMeta(object):
         """
 
     @abstractmethod
-    def executeCallbackFunctions(self, nOut: int, nIn: int):
+    def execute_callback_functions(self, n_out: int, n_in: int):
         """
         Execute all callback functions
         """
