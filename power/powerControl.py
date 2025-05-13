@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Callable
+from typing import Callable, List
 
 from extronlib import event, Version
 from extronlib.device import UIDevice
@@ -19,28 +19,34 @@ class SystemPower(object):
     stOff = "Off"
     stNames = {stOn: "System On", stOff: "System Off"}
 
-    def __init__(self, pName: str = "System Power",):
-        self.__powerState = self.stOff
-        self.__powerName = pName
+    msg_sys_turning_on_text = {'ru': 'Сохраняйте спокойствие!\nСистема включается!',
+                               'en': 'Keep calm!\nRoom system is turning on!'}
+    msg_sys_turning_off_text = {'ru': 'Спасибо, что выбрали нас!\nСистема выключается.',
+                                'en': 'Thank you for choosing us!\nRoom system is turning off!'}
 
-        self.__btnTgls = list()
-        self.__btnOns = list()
-        self.__btnOffs = list()
-        self.__lblStates = list()
-        self.__lblNames = list()
+    def __init__(self, pName: str = "System Power", lang: str = "ru"):
+        self._powerState = self.stOff
+        self._powerName = pName
+        self._lang = lang
 
-        self.__powerPages = dict()
+        self._btnTgls = list()
+        self._btnOns = list()
+        self._btnOffs = list()
+        self._lblStates = list()
+        self._lblNames = list()
 
-        self.__splashScreens = list()
+        self._powerPages = dict()
 
-        self.__powerOnScripts = list()
-        self.__powerOffScripts = list()
+        self._splashScreens: List[SplashScreen] = list()
+
+        self._powerOnScripts = list()
+        self._powerOffScripts = list()
 
     def addSplashScreen(self, splashScreen: SplashScreen = None):
-        self.__splashScreens.append(splashScreen)
+        self._splashScreens.append(splashScreen)
 
     def addPageTpansitions(self, uiHost: UIDevice, powerOnPage: str = None, powerOffPage: str = None):
-        self.__powerPages[uiHost] = {self.stOn: powerOnPage, self.stOff: powerOffPage}
+        self._powerPages[uiHost] = {self.stOn: powerOnPage, self.stOff: powerOffPage}
 
     def setMechanics(self,
                      uiHost: UIDevice,
@@ -50,9 +56,9 @@ class SystemPower(object):
                      btnOnID: int = None,
                      btnOffID: int = None):
 
-        self.__btnTgls.append(Button(uiHost, btnTglID))
+        self._btnTgls.append(Button(uiHost, btnTglID))
 
-        @event(self.__btnTgls, sStates)
+        @event(self._btnTgls, sStates)
         def btnTglsEventHandler(btn: Button, state: str):
             if (state == sPressed):
                 if (btn.State == 0):
@@ -68,17 +74,17 @@ class SystemPower(object):
                 self.pwrToggle()
 
         if lblSateID:
-            self.__lblStates.append(Label(uiHost, lblSateID))
+            self._lblStates.append(Label(uiHost, lblSateID))
 
         if lblNameID:
-            self.__lblNames.append(Label(uiHost, lblNameID))
-            for lbl in self.__lblNames:
-                lbl.SetText(self.__powerName)
+            self._lblNames.append(Label(uiHost, lblNameID))
+            for lbl in self._lblNames:
+                lbl.SetText(self._powerName)
 
         if btnOnID:
-            self.__btnOns.append(Button(uiHost, btnOnID))
+            self._btnOns.append(Button(uiHost, btnOnID))
 
-            @event(self.__btnOns, sStates)
+            @event(self._btnOns, sStates)
             def btnOnsEventHandler(btn: Button, state: str):
                 if (state == sPressed):
                     if (btn.State == 0):
@@ -94,9 +100,9 @@ class SystemPower(object):
                     self.pwrOn()
 
         if btnOffID:
-            self.__btnOffs.append(Button(uiHost, btnOffID))
+            self._btnOffs.append(Button(uiHost, btnOffID))
 
-            @event(self.__btnOffs, sStates)
+            @event(self._btnOffs, sStates)
             def btnOffsEventHandler(btn: Button, state: str):
                 if (state == sPressed):
                     if (btn.State == 0):
@@ -115,62 +121,62 @@ class SystemPower(object):
 
     def pwrToggle(self):
         dbg.print("Toggle Power")
-        if (self.__powerState == self.stOff):
+        if (self._powerState == self.stOff):
             self.pwrOn()
-        elif (self.__powerState == self.stOn):
+        elif (self._powerState == self.stOn):
             self.pwrOff()
 
     def pwrOn(self):
-        self.__powerState = self.stOn
-        for spl in self.__splashScreens:
-            spl.show("Keep calm!\nRoom system is turning on!", 5)
+        self._powerState = self.stOn
+        for spl in self._splashScreens:
+            spl.show(self.msg_sys_turning_on_text[self._lang], 5)
         self.updateWidgets()
         self.powerOnScriptCall()
         dbg.print("ON Power")
 
     def pwrOff(self):
-        self.__powerState = self.stOff
-        for spl in self.__splashScreens:
-            spl.show("Thank you for choosing us!\nRoom system is turning off!", 5)
+        self._powerState = self.stOff
+        for spl in self._splashScreens:
+            spl.show(self.msg_sys_turning_off_text[self._lang], 5)
         self.updateWidgets()
         self.powerOffScriptCall()
         dbg.print("OFF Power")
 
     def updateWidgets(self):
-        for ui in self.__powerPages:
-            if self.__powerPages.get(ui).get(self.__powerState):
-                ui.ShowPage(self.__powerPages.get(ui).get(self.__powerState))
+        for ui in self._powerPages:
+            if self._powerPages.get(ui).get(self._powerState):
+                ui.ShowPage(self._powerPages.get(ui).get(self._powerState))
 
-        if (self.__powerState == self.stOff):
-            for btn in self.__btnTgls:
+        if (self._powerState == self.stOff):
+            for btn in self._btnTgls:
                 btn.SetState(0)
-            for btn in self.__btnOns:
+            for btn in self._btnOns:
                 btn.SetState(0)
-            for btn in self.__btnOffs:
+            for btn in self._btnOffs:
                 btn.SetState(2)
-        elif (self.__powerState == self.stOn):
-            for btn in self.__btnTgls:
+        elif (self._powerState == self.stOn):
+            for btn in self._btnTgls:
                 btn.SetState(2)
-            for btn in self.__btnOns:
+            for btn in self._btnOns:
                 btn.SetState(2)
-            for btn in self.__btnOffs:
+            for btn in self._btnOffs:
                 btn.SetState(0)
 
-        for lbl in self.__lblStates:
-            lbl.SetText(self.stNames.get(self.__powerState))
+        for lbl in self._lblStates:
+            lbl.SetText(self.stNames.get(self._powerState))
 
     def addPowerOnScript(self, scriptMethod: Callable[[str, str], None], *args):
-        self.__powerOnScripts.append({"method": scriptMethod, "args": args})
+        self._powerOnScripts.append({"method": scriptMethod, "args": args})
 
     def powerOnScriptCall(self):
-        for m in self.__powerOnScripts:
+        for m in self._powerOnScripts:
             if m:
                 m["method"](*m["args"])
 
     def addPowerOffScript(self, scriptMethod: Callable[[str, str], None], *args):
-        self.__powerOffScripts.append({"method": scriptMethod, "args": args})
+        self._powerOffScripts.append({"method": scriptMethod, "args": args})
 
     def powerOffScriptCall(self):
-        for m in self.__powerOffScripts:
+        for m in self._powerOffScripts:
             if m:
                 m["method"](*m["args"])

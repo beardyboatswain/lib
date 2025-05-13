@@ -12,7 +12,7 @@ import lib.utils.signals as signals
 from lib.utils.module_init import InitModule
 from lib.var.states import sPressed, sReleased, sHeld, sTapped, sRepeated, sStates
 
-from usr.dev.dev import biamp
+from usr.dev.dev import biamp_con
 from lib.audio.AudioProxyBiamp import AudioProxyBiampTesira
 
 from lib.utils.debugger import debuggerNet as debugger
