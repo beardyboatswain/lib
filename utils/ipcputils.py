@@ -77,13 +77,18 @@ class HexUtils:
         for i in _t:
             toH += "\\x" + "{:02X}".format(ord(i))
         return toH
-    
+
     def line_bytes_to_hexstring(s: bytes) -> str:
-        '''
-        s = b'\xaa\x14\x01\x01 6' 
-        '''
-        return ''.join(f'\\x{c:02x}' for c in s) 
-    
+        """
+        s = b'\xaa\x14\x01\x01 6'
+        """
+        hex_string = ''
+
+        for c in s:
+            hex_string += '\\x{:02x}'.format(c)
+
+        return hex_string
+
     def hexToString(x: int, frmt: str = "") -> str:
         if (frmt == ""):
             return "{:X}".format(0xD2F5)
